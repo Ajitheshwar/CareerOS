@@ -1,0 +1,145 @@
+.jarvis-container {
+  position: fixed;
+  will-change: transform, top, left, width, height;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  
+  /* Increased bounds: 35%–40% viewport width on desktop */
+  &.jarvis-center {
+    width: min(38vw, 500px);
+    height: min(38vw, 500px);
+    top: calc(50% - min(19vw, 250px) - 90px); /* Position slightly elevated to sit above the message stack */
+    left: calc(50% - min(19vw, 250px));
+    
+    @media (max-width: 768px) {
+      width: min(68vw, 280px);
+      height: min(68vw, 280px);
+      top: calc(50% - min(34vw, 140px) - 100px);
+      left: calc(50% - min(34vw, 140px));
+    }
+  }
+  
+  &.jarvis-float-right {
+    width: 140px;
+    height: 140px;
+    right: 32px;
+    bottom: 32px;
+    left: auto !important;
+    top: auto !important;
+  }
+  
+  &.jarvis-float-bottom {
+    width: 90px;
+    height: 90px;
+    bottom: 24px;
+    left: calc(50% - 45px);
+    top: auto !important;
+    right: auto !important;
+  }
+}
+
+.jarvis-wrapper {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.jarvis-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: opacity, filter;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  // Default "powered off" state
+  opacity: 0.06;
+  filter: saturate(0.1) brightness(0.4) blur(0.5px);
+  
+  // Progress Ring and Central Core are active/emissive by default
+  &.ring-progress-layer,
+  &.core-layer {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+// Active "powered on" state when progress threshold met
+.jarvis-layer.active-ring {
+  opacity: 0.85;
+  filter: saturate(1.2) brightness(1.3) drop-shadow(0 0 10px currentColor);
+
+  // Custom adjustments for specific rings to maintain visual balance
+  &.ring-energy-field {
+    opacity: 0.35;
+    filter: saturate(1.0) brightness(1.2) drop-shadow(0 0 5px currentColor) blur(0.5px);
+  }
+  &.ring-progress-layer {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px var(--color-accent-cyan));
+  }
+}
+
+/* Continuous rotation: Middle segment only */
+.spin-constant {
+  transform-origin: center;
+  animation: spin-clockwise 24s linear infinite;
+}
+
+/* Central Nucleus Breathing and Pulsating Animations */
+.nucleus-aura {
+  transform-origin: center;
+  animation: aura-breathe 6s ease-in-out infinite alternate;
+}
+
+.nucleus-heart {
+  transform-origin: center;
+  animation: heart-pulsate 4s ease-in-out infinite alternate;
+}
+
+.ring-energy-field {
+  // Let it pulse depth slightly when active
+  &.active-ring {
+    animation: energy-pulse 8s ease-in-out infinite alternate;
+  }
+}
+
+/* Energy ripple ring */
+.jarvis-ripple {
+  width: 100%;
+  height: 100%;
+  border: 1.5px solid var(--color-accent-cyan);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+  border-radius: 50%;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+/* Keyframes */
+@keyframes spin-clockwise {
+  0% { transform: translate3d(0, 0, 15px) rotate(0deg); }
+  100% { transform: translate3d(0, 0, 15px) rotate(360deg); }
+}
+
+@keyframes aura-breathe {
+  0% { transform: scale(0.96); opacity: 0.25; }
+  100% { transform: scale(1.05); opacity: 0.38; }
+}
+
+@keyframes heart-pulsate {
+  0% { transform: scale(0.92); opacity: 0.8; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes energy-pulse {
+  0% {
+    transform: translate3d(0, 0, -60px) scale(1.1);
+  }
+  100% {
+    transform: translate3d(0, 0, -52px) scale(1.18);
+  }
+}

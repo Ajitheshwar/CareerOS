@@ -1,0 +1,29 @@
+.boot-container {
+  transform-style: preserve-3d;
+  z-index: 20;
+  will-change: transform, opacity, filter;
+}
+
+.message-stack {
+  width: 100%;
+  max-width: 600px;
+}
+
+.message-item {
+  will-change: transform, opacity;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.prompt-text {
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  
+  &.show-prompt {
+    opacity: 1;
+    animation: pulse-soft 2.5s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes pulse-soft {
+  0% { opacity: 0.6; filter: brightness(0.85); }
+  100% { opacity: 1; filter: brightness(1.15); }
+}

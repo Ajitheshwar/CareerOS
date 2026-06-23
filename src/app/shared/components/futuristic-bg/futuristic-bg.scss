@@ -1,0 +1,141 @@
+.bg-viewport {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Layer 1: Atmospheric Glows */
+.layer-atmosphere {
+  background: radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.02) 0%, transparent 60%),
+              radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.015) 0%, transparent 65%);
+  transform: translateZ(-1200px);
+  animation: atmospheric-shift 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Chamber Fog & Diffusion Overlays */
+.chamber-fog {
+  background: radial-gradient(circle at center, transparent 35%, rgba(2, 3, 6, 0.85) 90%);
+  transform: translateZ(50px);
+  width: 100%;
+  height: 100%;
+}
+
+.chamber-glow {
+  background: radial-gradient(circle at center, rgba(6, 182, 212, 0.025) 0%, transparent 55%);
+  transform: translateZ(-200px);
+  width: 100%;
+  height: 100%;
+}
+
+/* Layer 5: Ambient Chamber Light Sweep */
+.layer-light-sweep {
+  width: 250%;
+  height: 250%;
+  top: -75%;
+  left: -75%;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.01) 0%, transparent 45%);
+  animation: light-sweep-movement 45s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(100px);
+}
+
+/* Depth Tunnel Configuration */
+.depth-tunnel-container {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.depth-tunnel {
+  transform-style: preserve-3d;
+}
+
+.tunnel-ring {
+  position: absolute;
+  opacity: 0;
+  transform-style: preserve-3d;
+  transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+  }
+
+  &.ring-1 {
+    width: 620px;
+    height: 620px;
+    --z-depth: -100px;
+    --base-scale: 0.95;
+    --max-opacity: 0.09;
+  }
+  &.ring-2 {
+    width: 530px;
+    height: 530px;
+    --z-depth: -300px;
+    --base-scale: 0.85;
+    --max-opacity: 0.07;
+  }
+  &.ring-3 {
+    width: 440px;
+    height: 440px;
+    --z-depth: -500px;
+    --base-scale: 0.75;
+    --max-opacity: 0.08;
+  }
+  &.ring-4 {
+    width: 350px;
+    height: 350px;
+    --z-depth: -700px;
+    --base-scale: 0.65;
+    --max-opacity: 0.06;
+  }
+  &.ring-5 {
+    width: 270px;
+    height: 270px;
+    --z-depth: -900px;
+    --base-scale: 0.55;
+    --max-opacity: 0.08;
+  }
+  &.ring-6 {
+    width: 190px;
+    height: 190px;
+    --z-depth: -1100px;
+    --base-scale: 0.45;
+    --max-opacity: 0.05;
+  }
+  &.ring-7 {
+    width: 110px;
+    height: 110px;
+    --z-depth: -1200px;
+    --base-scale: 0.35;
+    --max-opacity: 0.04;
+  }
+
+  &.wake {
+    opacity: var(--max-opacity);
+    animation: tunnel-breathe 14s ease-in-out infinite alternate;
+  }
+}
+
+/* Layer 3: Data Streams */
+.data-streams-layer {
+  transform: translateZ(-400px);
+  width: 100%;
+  height: 100%;
+}
+
+.stream-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.05) 50%, transparent);
+  will-change: transform;
+}
+
+.line-1 { left: 18%; animation: stream-drift-down 28s linear infinite; }
+.line-2 { left: 50%; background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.04) 50%, transparent); animation: stream-drift-up 36s linear infinite; }
+.line-3 { right: 18%; animation: stream-drift-down 24s linear infinite; }

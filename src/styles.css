@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background-primary: #020306;
+  --color-background-secondary: #05070f;
+  --color-background-tertiary: #0a0e1a;
+  
+  --color-accent-blue: #2563eb; 
+  --color-accent-cyan: #06b6d4;  
+  --color-accent-teal: #14b8a6;   /* Subtle teal */
+  --color-accent-purple: #8b5cf6; /* Softer violet/purple */
+  --color-accent-emerald: #10b981; 
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Custom timings & transition rules */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-cinematic: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Global Styles Foundation */
+html {
+  scrollbar-gutter: stable;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background-primary);
+  color: #f3f4f6; /* Light gray text for readability */
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism foundation class */
+.glass-panel, .glass-panel-interactive {
+  background: rgba(11, 16, 32, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: var(--transition-smooth);
+}
+
+/* Hover effects for glass panels */
+.glass-panel-interactive:hover {
+  border-color: rgba(6, 182, 212, 0.2); /* CYAN subtle border glow */
+  background: rgba(11, 16, 32, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.05);
+}
+
+/* 3D Scene Viewport container */
+.viewport-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  z-index: 10;
+}
+
+/* Scroll Spacer */
+.scroll-spacer {
+  position: relative;
+  width: 100%;
+  height: 900vh; /* 9 scenes * 100vh */
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Custom Scrollbar for premium dark mode feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Global Keyframe Animations (Moved from components to optimize build budgets) */
+@keyframes atmospheric-shift {
+  0% { transform: translateZ(-1200px) scale(1) translate(0, 0); }
+  100% { transform: translateZ(-1200px) scale(1.08) translate(3%, 2%); }
+}
+
+@keyframes light-sweep-movement {
+  0% { transform: translate3d(-15%, -20%, 100px) rotate(0deg); }
+  50% { transform: translate3d(15%, 20%, 100px) rotate(180deg); }
+  100% { transform: translate3d(-15%, -20%, 100px) rotate(360deg); }
+}
+
+@keyframes tunnel-breathe {
+  0% { transform: translate3d(0, 0, var(--z-depth)) scale(var(--base-scale)); }
+  100% { transform: translate3d(0, 0, calc(var(--z-depth) + 15px)) scale(calc(var(--base-scale) * 1.018)); }
+}
+
+@keyframes stream-drift-down {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes stream-drift-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes drift-cluster-a {
+  0% { transform: translate3d(0, 0, -300px); }
+  100% { transform: translate3d(18px, -15px, -300px); }
+}
+
+@keyframes drift-cluster-b {
+  0% { transform: translate3d(0, 0, -600px); }
+  100% { transform: translate3d(-20px, 18px, -600px); }
+}
+
+@keyframes drift-cluster-c {
+  0% { transform: translate3d(0, 0, 50px); }
+  100% { transform: translate3d(12px, 15px, 50px); }
+}
+
+@keyframes drift-cluster-d {
+  0% { transform: translate3d(0, 0, 150px); }
+  100% { transform: translate3d(-15px, -10px, 150px); }
+}
+
+@keyframes drift-cluster-e {
+  0% { transform: translate3d(-50%, -50%, -150px) translate(0, 0); }
+  100% { transform: translate3d(-50%, -50%, -150px) translate(8px, -8px); }
+}
+
+@keyframes spin-clockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-counter-clockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+@keyframes data-pulse-anim {
+  0% { stroke-dashoffset: 224; opacity: 0; }
+  10% { opacity: 0.35; }
+  45% { opacity: 0.35; }
+  75% { stroke-dashoffset: 0; opacity: 0.35; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* AI Network Node Clusters CSS Rules */
+.particles-layer {
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  bottom: -20px;
+  animation: float-up linear infinite;
+  will-change: transform, opacity;
+}
+
+.ai-network-container {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.node-cluster {
+  opacity: 0;
+  transform-style: preserve-3d;
+  will-change: opacity, transform;
+  transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s;
+}
+
+.node-cluster.faint {
+  opacity: 0.12 !important;
+}
+
+.node-cluster.cluster-a {
+  top: 6%;
+  left: 8%;
+  transform: translate3d(0, 0, -300px);
+  animation: drift-cluster-a 26s ease-in-out infinite alternate;
+}
+.node-cluster.cluster-a.active { opacity: 0.65 !important; }
+
+.node-cluster.cluster-b {
+  top: 10%;
+  right: 8%;
+  transform: translate3d(0, 0, -600px);
+  animation: drift-cluster-b 32s ease-in-out infinite alternate;
+}
+.node-cluster.cluster-b.active { opacity: 0.40 !important; }
+
+.node-cluster.cluster-c {
+  bottom: 12%;
+  left: 6%;
+  transform: translate3d(0, 0, 50px);
+  animation: drift-cluster-c 20s ease-in-out infinite alternate;
+}
+.node-cluster.cluster-c.active { opacity: 0.65 !important; }
+
+.node-cluster.cluster-d {
+  bottom: 8%;
+  right: 8%;
+  transform: translate3d(0, 0, 150px);
+  animation: drift-cluster-d 24s ease-in-out infinite alternate;
+}
+.node-cluster.cluster-d.active { opacity: 0.70 !important; }
+
+.node-cluster.cluster-e {
+  transform: translate3d(0, 0, -150px);
+  animation: drift-cluster-e 28s ease-in-out infinite alternate;
+}
+.node-cluster.cluster-e.active { opacity: 0.55 !important; }
+
+.node-cluster.sync {
+  filter: brightness(1.6);
+}
+
+.node {
+  transform-style: preserve-3d;
+  transform: translate3d(0, 0, 5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.node::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260%;
+  height: 260%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateZ(-5px);
+  background: inherit;
+  filter: blur(14px);
+  opacity: 0.12;
+  pointer-events: none;
+  transition: opacity 1.5s;
+}
+
+.ring-node {
+  background: transparent !important;
+}
+.ring-node::after {
+  background: var(--color-accent-cyan) !important;
+  opacity: 0.08;
+  filter: blur(10px);
+}
+
+.hollow-node {
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.hollow-node::after {
+  background: var(--color-accent-blue) !important;
+  opacity: 0.08;
+  filter: blur(12px);
+}
+
+.hub-node {
+  background: transparent !important;
+}
+.hub-node::after {
+  background: var(--color-accent-cyan) !important;
+  opacity: 0.15;
+  filter: blur(16px);
+}
+.hub-node .outer-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px dashed rgba(6, 182, 212, 0.3);
+  animation: spin-clockwise 24s linear infinite;
+}
+.hub-node .core {
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+}
+
+.hub-node.large-hub::after {
+  background: var(--color-accent-purple) !important;
+  opacity: 0.15;
+  filter: blur(22px);
+}
+.hub-node.large-hub .outer-ring {
+  border: 1.5px dashed rgba(168, 85, 247, 0.25);
+  animation: spin-counter-clockwise 18s linear infinite;
+}
+
+.conn-base {
+  stroke: rgba(255, 255, 255, 0.035);
+  stroke-width: 1;
+  transition: stroke 1.5s, opacity 1.5s;
+}
+.node-cluster.active .conn-base {
+  stroke: rgba(255, 255, 255, 0.06);
+}
+
+.conn-pulse {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0;
+  stroke-dasharray: 24 200;
+  stroke-dashoffset: 224;
+  will-change: stroke-dashoffset, opacity;
+}
+.node-cluster.active .conn-pulse.pulse-1 { animation: data-pulse-anim 10s ease-in-out infinite; animation-delay: 2s; }
+.node-cluster.active .conn-pulse.pulse-2 { animation: data-pulse-anim 12s ease-in-out infinite; animation-delay: 5s; }
+.node-cluster.active .conn-pulse.pulse-3 { animation: data-pulse-anim 8s ease-in-out infinite; animation-delay: 1s; }
+.node-cluster.active .conn-pulse.pulse-4 { animation: data-pulse-anim 14s ease-in-out infinite; animation-delay: 6s; }
+.node-cluster.active .conn-pulse.pulse-5 { animation: data-pulse-anim 15s ease-in-out infinite; animation-delay: 8s; }
+
+

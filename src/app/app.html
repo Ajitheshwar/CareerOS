@@ -1,0 +1,51 @@
+<!-- Ambient Futuristic Atmosphere Background -->
+<app-futuristic-bg />
+
+<!-- Main 3D Viewport Container -->
+<div class="viewport-container">
+  
+  <!-- Boot Sequence scene (remains in DOM for exit transition) -->
+  <app-boot-sequence 
+    [active]="sceneState().boot.isActive || isBooting()" 
+    [progress]="sceneState().boot.progress" />
+      
+  <app-identity-core 
+    [active]="sceneState().identity.isActive" 
+    [progress]="sceneState().identity.progress" />
+      
+  <app-skills-engine 
+    [active]="sceneState().skills.isActive" 
+    [progress]="sceneState().skills.progress" />
+      
+  <app-experience-database 
+    [active]="sceneState().experience.isActive" 
+    [progress]="sceneState().experience.progress" />
+      
+  <app-enterprise-operations 
+    [active]="sceneState().enterprise.isActive" 
+    [progress]="sceneState().enterprise.progress" />
+      
+  <app-project-network 
+    [active]="sceneState().projects.isActive" 
+    [progress]="sceneState().projects.progress" />
+      
+  <app-achievement-vault 
+    [active]="sceneState().achievements.isActive" 
+    [progress]="sceneState().achievements.progress" />
+      
+  <app-ai-core 
+    [active]="sceneState().ai.isActive" 
+    [progress]="sceneState().ai.progress" />
+      
+  <app-contact-terminal 
+    [active]="sceneState().contact.isActive" 
+    [progress]="sceneState().contact.progress" />
+
+  <!-- Global persistent JARVIS Companion Core -->
+  <app-jarvis-core />
+</div>
+
+<!-- Scroll Synchronizer Overlay (only rendered post-boot to unlock scrolling) -->
+@if (!isBooting()) {
+  <div class="scroll-spacer"></div>
+}

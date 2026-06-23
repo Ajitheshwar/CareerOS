@@ -1,0 +1,84 @@
+@if (shouldRender()) {
+  <div class="identity-scene-container absolute inset-0 flex items-center justify-center overflow-hidden select-none"
+       [style]="containerStyle()">
+    
+    <!-- 3D Environment Space -->
+    <div class="scene-3d-wrapper relative w-[100vw] h-[100vh] flex items-center justify-center transform-style-3d pointer-events-none">
+      
+      <!-- Glowing Holographic Energy Nucleus Background (radial gradient) -->
+      <div class="energy-nucleus-layer absolute flex items-center justify-center pointer-events-none"
+           [style]="nucleusStyle()">
+        <svg viewBox="0 0 500 500" class="w-[300px] h-[300px] md:w-[500px] md:h-[500px]">
+          <defs>
+            <filter id="nucleus-glow-heavy" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="25" result="blur1" />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur2" />
+              <feMerge>
+                <feMergeNode in="blur1" />
+                <feMergeNode in="blur2" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <radialGradient id="nucleus-grad-heavy" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+              <stop offset="15%" stop-color="var(--color-accent-cyan)" stop-opacity="0.6" />
+              <stop offset="45%" stop-color="var(--color-accent-blue)" stop-opacity="0.25" />
+              <stop offset="75%" stop-color="var(--color-accent-purple)" stop-opacity="0.08" />
+              <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <!-- Volumetric Outer Pulse Halo -->
+          <circle cx="250" cy="250" r="220" fill="url(#nucleus-grad-heavy)" opacity="0.3" class="nucleus-outer-halo" />
+          <!-- Hot core energy nucleus -->
+          <circle cx="250" cy="250" r="85" fill="url(#nucleus-grad-heavy)" filter="url(#nucleus-glow-heavy)" class="nucleus-core" />
+        </svg>
+      </div>
+
+      <!-- Canvas for 3D Particle Sphere Shell, Core Orbit Rings, and Dispersal Particles -->
+      <canvas class="identity-canvas absolute w-full h-full pointer-events-none transform-style-3d"></canvas>
+
+      <!-- Primary Content (Integrated directly into the environment) -->
+      <div class="identity-text-wrapper absolute flex flex-col items-center justify-center text-center px-6 pointer-events-auto"
+           [style]="contentStyle()">
+          <h1 class="name-text font-sans font-medium tracking-[0.24em] text-l md:text-xl text-white select-none">
+          Hi! I'm
+        </h1>
+        <h1 class="name-text font-sans font-extrabold tracking-[0.24em] text-4xl md:text-6xl text-white uppercase select-none">
+          AJITHESHWAR VADLA
+        </h1>
+        <div class="role-text font-mono text-accent-cyan tracking-[0.38em] uppercase text-xs md:text-sm mt-4">
+          Software Engineer
+        </div>
+        <p class="pitch-text font-sans font-light text-white/60 max-w-[460px] text-xs md:text-sm mt-5 leading-relaxed tracking-wide">
+          Building scalable enterprise systems and AI-powered products.
+        </p>
+      </div>
+
+      <!-- Floating Metadata Fragments (Connected via calculated HUD vectors) -->
+      @for (frag of projectedFragments(); track frag.text) {
+        <div class="floating-fragment absolute pointer-events-auto"
+             [style.transform]="frag.transform"
+             [style.opacity]="frag.opacity"
+             [style.z-index]="frag.zIndex"
+             [style.display]="frag.opacity <= 0.01 ? 'none' : 'flex'">
+          
+          <!-- Holographic Connection Vector Line (drawn from centerpiece to fragment coordinate) -->
+          <div class="hud-connection-line" 
+               [style.width.px]="frag.vectorLength" 
+               [style.transform]="frag.vectorRotation"
+               [style.opacity]="frag.opacity * 0.35"></div>
+
+          <!-- Fragment Info Frame -->
+          <div class="hud-metadata-frame flex items-center space-x-2">
+            <span class="hud-bracket-left">[</span>
+            <span class="hud-dot" [style.background-color]="frag.color"></span>
+            <span class="hud-text font-mono text-[9px] md:text-[11px] tracking-[0.16em] uppercase">{{ frag.text }}</span>
+            <span class="hud-bracket-right">]</span>
+          </div>
+        </div>
+      }
+
+    </div>
+
+  </div>
+}

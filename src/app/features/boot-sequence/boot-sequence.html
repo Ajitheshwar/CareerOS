@@ -1,0 +1,21 @@
+<div [style]="containerStyle()" 
+     class="boot-container flex flex-col items-center justify-center absolute inset-0 select-none text-center pointer-events-none">
+  
+  <!-- Accumulating Typography Stack placed below the centered JARVIS Core coordinates -->
+  <div class="message-stack flex flex-col items-center space-y-3 mt-96 md:mt-[380px]">
+    
+    @for (msg of activeMessages(); track $index) {
+      <div class="message-item font-mono text-xs md:text-sm tracking-widest transition-all duration-500 ease-out text-white/90"
+           [style.opacity]="msg.opacity"
+           [style.transform]="msg.transform">
+        {{ msg.text }}
+      </div>
+    }
+    
+    <!-- Instruction Prompt (fades in when ready) -->
+    <div class="prompt-text font-mono text-[9px] md:text-[10px] tracking-[0.25em] text-accent-cyan/80 uppercase opacity-0 transition-opacity duration-1000 ease-in-out pt-6">
+      Scroll to begin the journey
+    </div>
+  </div>
+  
+</div>
