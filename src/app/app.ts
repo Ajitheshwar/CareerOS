@@ -10,9 +10,6 @@ import { BootSequence } from './features/boot-sequence/boot-sequence';
 import { IdentityCore } from './features/identity-core/identity-core';
 import { SkillsEngine } from './features/skills-engine/skills-engine';
 import { ExperienceDatabase } from './features/experience-database/experience-database';
-import { EnterpriseOperations } from './features/enterprise-operations/enterprise-operations';
-import { ProjectNetwork } from './features/project-network/project-network';
-import { AchievementVault } from './features/achievement-vault/achievement-vault';
 import { AiCore } from './features/ai-core/ai-core';
 import { ContactTerminal } from './features/contact-terminal/contact-terminal';
 
@@ -31,9 +28,6 @@ import { AnimationService } from './core/services/animation.service';
     IdentityCore,
     SkillsEngine,
     ExperienceDatabase,
-    EnterpriseOperations,
-    ProjectNetwork,
-    AchievementVault,
     AiCore,
     ContactTerminal
   ],
@@ -47,6 +41,7 @@ export class App implements OnDestroy {
   // Expose state signals
   public readonly isBooting = computed(() => this.sceneEngine.isBooting());
   public readonly sceneState = computed(() => this.sceneEngine.scenesState());
+  public readonly totalScrollHeight = computed(() => this.sceneEngine.totalScrollHeight());
 
   constructor() {
     // Setup ScrollTrigger once boot sequence completes and scroll element is rendered

@@ -14,41 +14,50 @@ export class SceneEngineService {
     { id: 'identity', name: 'Identity Core' },
     { id: 'skills', name: 'Skills Engine' },
     { id: 'experience', name: 'Experience Database' },
-    { id: 'enterprise', name: 'Enterprise Operations Center' },
-    { id: 'projects', name: 'Project Network' },
-    { id: 'achievements', name: 'Achievement Vault' },
     { id: 'ai', name: 'AI Core' },
     { id: 'contact', name: 'Contact Terminal' }
   ];
 
-  // Dynamically compute scroll starts and ends based on the configurable bootThreshold
+  // Track viewport height to calculate vh-based heights dynamically
+  public readonly viewportHeight = signal<number>(
+    typeof window !== 'undefined' ? window.innerHeight : 1080
+  );
+
+  // Configurable heights per scene (mixing relative and absolute pixel heights)
+  private readonly sceneHeights: Record<SceneId, (viewportHeight: number) => number> = {
+    boot: (vh) => vh * 0.5,
+    identity: (vh) => vh,
+    skills: (vh) => 1250, // 5 stages * 250px = 1250px
+    experience: (vh) => 5000,
+    ai: (vh) => vh,
+    contact: (vh) => vh
+  };
+
+  // Compute the total page scroll height dynamically in pixels
+  public readonly totalScrollHeight = computed(() => {
+    const vh = this.viewportHeight();
+    return this.scenesList.reduce((sum, scene) => sum + this.sceneHeights[scene.id](vh), 0);
+  });
+
+  // Dynamically compute scroll starts and ends mapped to normalized 0.0 - 1.0 ranges
   public readonly scenesMetadata = computed<SceneMetadata[]>(() => {
-    const threshold = this.bootThreshold();
-    const otherCount = this.scenesList.length - 1; // exclude boot
-    const remainingScroll = 1.0 - threshold;
-    const step = remainingScroll / otherCount;
+    const vh = this.viewportHeight();
+    const totalHeight = this.totalScrollHeight();
+    
+    let currentScrollPixel = 0;
 
     return this.scenesList.map((scene, idx) => {
-      if (scene.id === 'boot') {
-        return {
-          id: 'boot',
-          name: scene.name,
-          index: 0,
-          scrollStart: 0.0,
-          scrollEnd: threshold
-        };
-      }
-
-      const activeIdx = idx - 1;
-      const scrollStart = threshold + activeIdx * step;
-      const scrollEnd = scrollStart + step;
+      const height = this.sceneHeights[scene.id](vh);
+      const startPixel = currentScrollPixel;
+      const endPixel = currentScrollPixel + height;
+      currentScrollPixel = endPixel;
 
       return {
         id: scene.id,
         name: scene.name,
         index: idx,
-        scrollStart,
-        scrollEnd
+        scrollStart: totalHeight > 0 ? startPixel / totalHeight : 0,
+        scrollEnd: totalHeight > 0 ? endPixel / totalHeight : 0
       };
     });
   });
@@ -117,7 +126,15 @@ export class SceneEngineService {
     }
   };
 
-  constructor() {}
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', this.onResize);
+    }
+  }
+
+  private readonly onResize = (): void => {
+    this.viewportHeight.set(window.innerHeight);
+  };
 
   /**
    * Disables all wheel, touch, keyboard, and trackpad scrolling.

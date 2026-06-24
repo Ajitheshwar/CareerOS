@@ -3,9 +3,6 @@ export type SceneId =
   | 'identity'
   | 'skills'
   | 'experience'
-  | 'enterprise'
-  | 'projects'
-  | 'achievements'
   | 'ai'
   | 'contact';
 

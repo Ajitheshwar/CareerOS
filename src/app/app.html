@@ -21,18 +21,6 @@
     [active]="sceneState().experience.isActive" 
     [progress]="sceneState().experience.progress" />
       
-  <app-enterprise-operations 
-    [active]="sceneState().enterprise.isActive" 
-    [progress]="sceneState().enterprise.progress" />
-      
-  <app-project-network 
-    [active]="sceneState().projects.isActive" 
-    [progress]="sceneState().projects.progress" />
-      
-  <app-achievement-vault 
-    [active]="sceneState().achievements.isActive" 
-    [progress]="sceneState().achievements.progress" />
-      
   <app-ai-core 
     [active]="sceneState().ai.isActive" 
     [progress]="sceneState().ai.progress" />
@@ -47,5 +35,5 @@
 
 <!-- Scroll Synchronizer Overlay (only rendered post-boot to unlock scrolling) -->
 @if (!isBooting()) {
-  <div class="scroll-spacer"></div>
+  <div class="scroll-spacer" [style.height.px]="totalScrollHeight()"></div>
 }

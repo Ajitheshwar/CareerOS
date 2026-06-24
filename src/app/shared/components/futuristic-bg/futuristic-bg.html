@@ -13,75 +13,6 @@
   <!-- Ambient Chamber Light Sweep Layer -->
   <div class="layer-light-sweep absolute"></div>
 
-  <!-- Depth Tunnel Container (Centered behind JARVIS) -->
-  <!-- <div class="depth-tunnel-container absolute inset-0 flex items-center justify-center">
-    <div class="depth-tunnel relative w-[600px] h-[600px] flex items-center justify-center"> -->
-      
-      <!-- Tunnel Ring 1: Solid/Dashed Thin trace with Corner ticks at translateZ(-100px) -->
-      <!-- <div class="tunnel-ring ring-1" [class.wake]="progress() >= 20" style="transform: translate3d(0, 0, -100px) scale(0.95)">
-        <svg viewBox="0 0 620 620" class="w-full h-full text-accent-cyan">
-          <circle cx="310" cy="310" r="300" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="120 40 220 60 40 80" />
-          <line x1="310" y1="5" x2="310" y2="20" stroke="currentColor" stroke-width="1.5" />
-          <line x1="310" y1="600" x2="310" y2="615" stroke="currentColor" stroke-width="1.5" />
-          <line x1="5" y1="310" x2="20" y2="310" stroke="currentColor" stroke-width="1.5" />
-          <line x1="600" y1="310" x2="615" y2="310" stroke="currentColor" stroke-width="1.5" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 2: Segmented hexagon frame at translateZ(-300px) -->
-      <!-- <div class="tunnel-ring ring-2" [class.wake]="progress() >= 20" style="transform: translate3d(0, 0, -300px) scale(0.85)">
-        <svg viewBox="0 0 530 530" class="w-full h-full text-accent-blue">
-          <polygon points="515,265 390,481.5 140,481.5 15,265 140,48.5 390,48.5" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="25 15" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 3: Segmented arcs with target brackets at translateZ(-500px) -->
-      <!-- <div class="tunnel-ring ring-3" [class.wake]="progress() >= 40" style="transform: translate3d(0, 0, -500px) scale(0.75)">
-        <svg viewBox="0 0 440 440" class="w-full h-full text-accent-teal">
-          <circle cx="220" cy="220" r="210" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="80 30 140 45" />
-          <path d="M 200,10 A 210,210 0 0,1 240,10" stroke="currentColor" stroke-width="2" fill="none" />
-          <path d="M 200,430 A 210,210 0 0,0 240,430" stroke="currentColor" stroke-width="2" fill="none" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 4: Dotted concentric outlines at translateZ(-700px) -->
-      <!-- <div class="tunnel-ring ring-4" [class.wake]="progress() >= 40" style="transform: translate3d(0, 0, -700px) scale(0.65)">
-        <svg viewBox="0 0 350 350" class="w-full h-full text-accent-purple">
-          <circle cx="175" cy="175" r="165" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 8" fill="none" />
-          <circle cx="175" cy="175" r="155" stroke="currentColor" stroke-width="0.75" stroke-dasharray="10 6" fill="none" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 5: Radiating tick segment bars at translateZ(-900px) -->
-      <!-- <div class="tunnel-ring ring-5" [class.wake]="progress() >= 60" style="transform: translate3d(0, 0, -900px) scale(0.55)">
-        <svg viewBox="0 0 270 270" class="w-full h-full text-accent-cyan">
-          <circle cx="135" cy="135" r="125" stroke="currentColor" stroke-width="1.25" fill="none" stroke-dasharray="90 15 45 10 90 20" />
-          <circle cx="135" cy="135" r="115" stroke="currentColor" stroke-width="0.5" fill="none" />
-          <line x1="135" y1="1" x2="135" y2="8" stroke="currentColor" stroke-width="1" />
-          <line x1="261" y1="135" x2="269" y2="135" stroke="currentColor" stroke-width="1" />
-          <line x1="135" y1="261" x2="135" y2="269" stroke="currentColor" stroke-width="1" />
-          <line x1="1" y1="135" x2="8" y2="135" stroke="currentColor" stroke-width="1" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 6: Octagonal outline frame at translateZ(-1100px) -->
-      <!-- <div class="tunnel-ring ring-6" [class.wake]="progress() >= 80" style="transform: translate3d(0, 0, -1100px) scale(0.45)">
-        <svg viewBox="0 0 190 190" class="w-full h-full text-accent-blue">
-          <polygon points="185,95 158.6,158.6 95,185 31.4,158.6 5,95 31.4,31.4 95,5 158.6,31.4" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="14 10" />
-        </svg>
-      </div> -->
-
-      <!-- Tunnel Ring 7: Concentric target trace at translateZ(-1200px) -->
-      <!-- <div class="tunnel-ring ring-7" [class.wake]="progress() >= 100" style="transform: translate3d(0, 0, -1200px) scale(0.35)">
-        <svg viewBox="0 0 110 110" class="w-full h-full text-accent-cyan">
-          <circle cx="55" cy="55" r="48" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="30 8 16 6" />
-          <circle cx="55" cy="55" r="38" stroke="currentColor" stroke-width="0.5" fill="none" />
-        </svg>
-      </div>
-
-    </div>
-  </div> -->
-
   <!-- Layer 3: Data Streams Layer at translateZ(-400px) -->
   <div class="data-streams-layer absolute inset-0">
     <div class="stream-line line-1"></div>
@@ -90,121 +21,123 @@
   </div>
 
   <!-- AI Network Node Clusters -->
-  <div class="ai-network-container absolute inset-0 transform-style-3d">
-    
-    <!-- Cluster A: Top-Left (Mid Depth, wakes >= 20% faintly, full >= 40%) -->
-    <div class="node-cluster cluster-a absolute w-[220px] h-[220px]" 
-         [class.faint]="progress() >= 20" 
-         [class.active]="progress() >= 40" 
-         [class.sync]="progress() === 100">
-      <svg class="absolute inset-0 w-full h-full">
-        <!-- Connection 1-2 -->
-        <line x1="46" y1="46" x2="167" y2="67" class="conn-base" />
-        <line x1="46" y1="46" x2="167" y2="67" class="conn-pulse pulse-1" />
-        <!-- Connection 2-3 -->
-        <line x1="167" y1="67" x2="98" y2="158" class="conn-base" />
-        <line x1="167" y1="67" x2="98" y2="158" class="conn-pulse pulse-2" />
-      </svg>
-      <!-- Node 1: Processing Hub (Mid size, 32px) -->
-      <div class="node absolute top-[30px] left-[30px] w-8 h-8 hub-node">
-        <div class="outer-ring"></div>
-        <div class="core bg-accent-cyan shadow-[0_0_12px_rgba(6,182,212,0.3)]"></div>
+  @if (activeSceneId() !== 'skills' && activeSceneId() !== 'experience') {
+    <div class="ai-network-container absolute inset-0 transform-style-3d">
+      
+      <!-- Cluster A: Top-Left (Mid Depth, wakes >= 20% faintly, full >= 40%) -->
+      <div class="node-cluster cluster-a absolute w-[220px] h-[220px]" 
+           [class.faint]="progress() >= 20" 
+           [class.active]="progress() >= 40" 
+           [class.sync]="progress() === 100">
+        <svg class="absolute inset-0 w-full h-full">
+          <!-- Connection 1-2 -->
+          <line x1="46" y1="46" x2="167" y2="67" class="conn-base" />
+          <line x1="46" y1="46" x2="167" y2="67" class="conn-pulse pulse-1" />
+          <!-- Connection 2-3 -->
+          <line x1="167" y1="67" x2="98" y2="158" class="conn-base" />
+          <line x1="167" y1="67" x2="98" y2="158" class="conn-pulse pulse-2" />
+        </svg>
+        <!-- Node 1: Processing Hub (Mid size, 32px) -->
+        <div class="node absolute top-[30px] left-[30px] w-8 h-8 hub-node">
+          <div class="outer-ring"></div>
+          <div class="core bg-accent-cyan shadow-[0_0_12px_rgba(6,182,212,0.3)]"></div>
+        </div>
+        <!-- Node 2: Solid Node (Mid size, 14px) -->
+        <div class="node absolute top-[60px] left-[160px] w-[14px] h-[14px] rounded-full bg-accent-blue/80 shadow-[0_0_8px_rgba(37,99,235,0.2)]"></div>
+        <!-- Node 3: Ring Node (Mid size, 16px) -->
+        <div class="node absolute top-[150px] left-[90px] w-4 h-4 rounded-full border-2 border-accent-purple/60 bg-transparent"></div>
       </div>
-      <!-- Node 2: Solid Node (Mid size, 14px) -->
-      <div class="node absolute top-[60px] left-[160px] w-[14px] h-[14px] rounded-full bg-accent-blue/80 shadow-[0_0_8px_rgba(37,99,235,0.2)]"></div>
-      <!-- Node 3: Ring Node (Mid size, 16px) -->
-      <div class="node absolute top-[150px] left-[90px] w-4 h-4 rounded-full border-2 border-accent-purple/60 bg-transparent"></div>
-    </div>
-
-    <!-- Cluster B: Top-Right (Far Depth, wakes >= 20% faintly, full >= 60%) -->
-    <div class="node-cluster cluster-b absolute w-[200px] h-[200px]" 
-         [class.faint]="progress() >= 20" 
-         [class.active]="progress() >= 60" 
-         [class.sync]="progress() === 100">
-      <svg class="absolute inset-0 w-full h-full">
-        <line x1="46" y1="46" x2="124" y2="134" class="conn-base" />
-        <line x1="46" y1="46" x2="124" y2="134" class="conn-pulse pulse-3" />
-      </svg>
-      <!-- Node 1: Hollow Core Node (Far size, 12px) -->
-      <div class="node absolute top-[40px] left-[40px] w-3 h-3 rounded-full border border-accent-cyan/40 bg-transparent flex items-center justify-center">
-        <div class="w-1 h-1 rounded-full bg-accent-cyan"></div>
+  
+      <!-- Cluster B: Top-Right (Far Depth, wakes >= 20% faintly, full >= 60%) -->
+      <div class="node-cluster cluster-b absolute w-[200px] h-[200px]" 
+           [class.faint]="progress() >= 20" 
+           [class.active]="progress() >= 60" 
+           [class.sync]="progress() === 100">
+        <svg class="absolute inset-0 w-full h-full">
+          <line x1="46" y1="46" x2="124" y2="134" class="conn-base" />
+          <line x1="46" y1="46" x2="124" y2="134" class="conn-pulse pulse-3" />
+        </svg>
+        <!-- Node 1: Hollow Core Node (Far size, 12px) -->
+        <div class="node absolute top-[40px] left-[40px] w-3 h-3 rounded-full border border-accent-cyan/40 bg-transparent flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-accent-cyan"></div>
+        </div>
+        <!-- Node 2: Solid Node (Far size, 8px) -->
+        <div class="node absolute top-[130px] left-[120px] w-2 h-2 rounded-full bg-accent-purple/70"></div>
       </div>
-      <!-- Node 2: Solid Node (Far size, 8px) -->
-      <div class="node absolute top-[130px] left-[120px] w-2 h-2 rounded-full bg-accent-purple/70"></div>
-    </div>
-
-    <!-- Cluster C: Bottom-Left (Near Depth, wakes >= 20% faintly, full >= 60%) -->
-    <div class="node-cluster cluster-c absolute w-[240px] h-[240px]" 
-         [class.faint]="progress() >= 20" 
-         [class.active]="progress() >= 60" 
-         [class.sync]="progress() === 100">
-      <svg class="absolute inset-0 w-full h-full">
-        <line x1="50" y1="130" x2="152" y2="72" class="conn-base" />
-        <line x1="50" y1="130" x2="152" y2="72" class="conn-pulse pulse-4" />
-      </svg>
-      <!-- Node 1: Solid Hero Node (Near size, 20px) -->
-      <div class="node absolute top-[120px] left-[40px] w-5 h-5 rounded-full bg-accent-cyan/90 shadow-[0_0_16px_rgba(6,182,212,0.4)]"></div>
-      <!-- Node 2: Ring Node (Near size, 24px) -->
-      <div class="node absolute top-[60px] left-[140px] w-6 h-6 rounded-full border-2 border-accent-cyan/50 bg-transparent shadow-[0_0_10px_rgba(6,182,212,0.2)]"></div>
-    </div>
-
-    <!-- Cluster D: Bottom-Right (Hero Depth, wakes >= 20% faintly, full >= 80%) -->
-    <div class="node-cluster cluster-d absolute w-[250px] h-[250px]" 
-         [class.faint]="progress() >= 20" 
-         [class.active]="progress() >= 80" 
-         [class.sync]="progress() === 100">
-      <svg class="absolute inset-0 w-full h-full">
-        <!-- Connection 1-2 -->
-        <line x1="61" y1="61" x2="171" y2="161" class="conn-base" />
-        <line x1="61" y1="61" x2="171" y2="161" class="conn-pulse pulse-5" />
-        <!-- Connection 2-3 -->
-        <line x1="171" y1="161" x2="69" y2="149" class="conn-base" />
-        <line x1="171" y1="161" x2="69" y2="149" class="conn-pulse pulse-1" />
-      </svg>
-      <!-- Node 1: Large Processing Hub (Hero size, 42px) -->
-      <div class="node absolute top-[40px] left-[40px] w-[42px] h-[42px] hub-node large-hub">
-        <div class="outer-ring"></div>
-        <div class="core bg-accent-purple shadow-[0_0_20px_rgba(168,85,247,0.4)]"></div>
+  
+      <!-- Cluster C: Bottom-Left (Near Depth, wakes >= 20% faintly, full >= 60%) -->
+      <div class="node-cluster cluster-c absolute w-[240px] h-[240px]" 
+           [class.faint]="progress() >= 20" 
+           [class.active]="progress() >= 60" 
+           [class.sync]="progress() === 100">
+        <svg class="absolute inset-0 w-full h-full">
+          <line x1="50" y1="130" x2="152" y2="72" class="conn-base" />
+          <line x1="50" y1="130" x2="152" y2="72" class="conn-pulse pulse-4" />
+        </svg>
+        <!-- Node 1: Solid Hero Node (Near size, 20px) -->
+        <div class="node absolute top-[120px] left-[40px] w-5 h-5 rounded-full bg-accent-cyan/90 shadow-[0_0_16px_rgba(6,182,212,0.4)]"></div>
+        <!-- Node 2: Ring Node (Near size, 24px) -->
+        <div class="node absolute top-[60px] left-[140px] w-6 h-6 rounded-full border-2 border-accent-cyan/50 bg-transparent shadow-[0_0_10px_rgba(6,182,212,0.2)]"></div>
       </div>
-      <!-- Node 2: Hollow Core Node (Hero size, 22px) -->
-      <div class="node absolute top-[150px] left-[160px] w-[22px] h-[22px] rounded-full border border-accent-cyan/50 bg-transparent flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.2)]">
-        <div class="w-2.5 h-2.5 rounded-full bg-accent-cyan"></div>
+  
+      <!-- Cluster D: Bottom-Right (Hero Depth, wakes >= 20% faintly, full >= 80%) -->
+      <div class="node-cluster cluster-d absolute w-[250px] h-[250px]" 
+           [class.faint]="progress() >= 20" 
+           [class.active]="progress() >= 80" 
+           [class.sync]="progress() === 100">
+        <svg class="absolute inset-0 w-full h-full">
+          <!-- Connection 1-2 -->
+          <line x1="61" y1="61" x2="171" y2="161" class="conn-base" />
+          <line x1="61" y1="61" x2="171" y2="161" class="conn-pulse pulse-5" />
+          <!-- Connection 2-3 -->
+          <line x1="171" y1="161" x2="69" y2="149" class="conn-base" />
+          <line x1="171" y1="161" x2="69" y2="149" class="conn-pulse pulse-1" />
+        </svg>
+        <!-- Node 1: Large Processing Hub (Hero size, 42px) -->
+        <div class="node absolute top-[40px] left-[40px] w-[42px] h-[42px] hub-node large-hub">
+          <div class="outer-ring"></div>
+          <div class="core bg-accent-purple shadow-[0_0_20px_rgba(168,85,247,0.4)]"></div>
+        </div>
+        <!-- Node 2: Hollow Core Node (Hero size, 22px) -->
+        <div class="node absolute top-[150px] left-[160px] w-[22px] h-[22px] rounded-full border border-accent-cyan/50 bg-transparent flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+          <div class="w-2.5 h-2.5 rounded-full bg-accent-cyan"></div>
+        </div>
+        <!-- Node 3: Solid Node (Hero size, 18px) -->
+        <div class="node absolute top-[140px] left-[60px] w-[18px] h-[18px] rounded-full bg-accent-blue shadow-[0_0_12px_rgba(37,99,235,0.3)]"></div>
       </div>
-      <!-- Node 3: Solid Node (Hero size, 18px) -->
-      <div class="node absolute top-[140px] left-[60px] w-[18px] h-[18px] rounded-full bg-accent-blue shadow-[0_0_12px_rgba(37,99,235,0.3)]"></div>
-    </div>
-
-    <!-- Cluster E: JARVIS Orbiting Cluster (Orbiting center, wakes >= 20% faintly, full >= 40%) -->
-    <div class="node-cluster cluster-e absolute w-[640px] h-[640px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" 
-         [class.faint]="progress() >= 20" 
-         [class.active]="progress() >= 40" 
-         [class.sync]="progress() === 100">
-      <svg class="absolute inset-0 w-full h-full">
-        <!-- Connecting orbiting nodes to frame a surrounding web -->
-        <line x1="147" y1="147" x2="468" y2="147" class="conn-base" />
-        <line x1="147" y1="147" x2="468" y2="147" class="conn-pulse pulse-2" />
-        
-        <line x1="468" y1="147" x2="467" y2="467" class="conn-base" />
-        <line x1="468" y1="147" x2="467" y2="467" class="conn-pulse pulse-3" />
-        
-        <line x1="467" y1="467" x2="146" y2="467" class="conn-base" />
-        <line x1="467" y1="467" x2="146" y2="467" class="conn-pulse pulse-4" />
-        
-        <line x1="146" y1="467" x2="147" y2="147" class="conn-base" />
-        <line x1="146" y1="467" x2="147" y2="147" class="conn-pulse pulse-5" />
-      </svg>
-      <!-- Node 1: Solid Orbit Node (Mid, 14px) -->
-      <div class="node absolute top-[140px] left-[140px] w-[14px] h-[14px] rounded-full bg-accent-blue/80 shadow-[0_0_8px_rgba(37,99,235,0.2)]"></div>
-      <!-- Node 2: Ring Orbit Node (Mid, 16px) -->
-      <div class="node absolute top-[140px] left-[460px] w-4 h-4 rounded-full border border-accent-cyan/60 bg-transparent"></div>
-      <!-- Node 3: Hollow Orbit Node (Mid, 14px) -->
-      <div class="node absolute top-[460px] left-[460px] w-[14px] h-[14px] rounded-full border border-accent-purple/50 bg-transparent flex items-center justify-center">
-        <div class="w-1.5 h-1.5 rounded-full bg-accent-purple"></div>
+  
+      <!-- Cluster E: JARVIS Orbiting Cluster (Orbiting center, wakes >= 20% faintly, full >= 40%) -->
+      <div class="node-cluster cluster-e absolute w-[640px] h-[640px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" 
+           [class.faint]="progress() >= 20" 
+           [class.active]="progress() >= 40" 
+           [class.sync]="progress() === 100">
+        <svg class="absolute inset-0 w-full h-full">
+          <!-- Connecting orbiting nodes to frame a surrounding web -->
+          <line x1="147" y1="147" x2="468" y2="147" class="conn-base" />
+          <line x1="147" y1="147" x2="468" y2="147" class="conn-pulse pulse-2" />
+          
+          <line x1="468" y1="147" x2="467" y2="467" class="conn-base" />
+          <line x1="468" y1="147" x2="467" y2="467" class="conn-pulse pulse-3" />
+          
+          <line x1="467" y1="467" x2="146" y2="467" class="conn-base" />
+          <line x1="467" y1="467" x2="146" y2="467" class="conn-pulse pulse-4" />
+          
+          <line x1="146" y1="467" x2="147" y2="147" class="conn-base" />
+          <line x1="146" y1="467" x2="147" y2="147" class="conn-pulse pulse-5" />
+        </svg>
+        <!-- Node 1: Solid Orbit Node (Mid, 14px) -->
+        <div class="node absolute top-[140px] left-[140px] w-[14px] h-[14px] rounded-full bg-accent-blue/80 shadow-[0_0_8px_rgba(37,99,235,0.2)]"></div>
+        <!-- Node 2: Ring Orbit Node (Mid, 16px) -->
+        <div class="node absolute top-[140px] left-[460px] w-4 h-4 rounded-full border border-accent-cyan/60 bg-transparent"></div>
+        <!-- Node 3: Hollow Orbit Node (Mid, 14px) -->
+        <div class="node absolute top-[460px] left-[460px] w-[14px] h-[14px] rounded-full border border-accent-purple/50 bg-transparent flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-accent-purple"></div>
+        </div>
+        <!-- Node 4: Solid Orbit Node (Mid, 12px) -->
+        <div class="node absolute top-[460px] left-[140px] w-3 h-3 rounded-full bg-accent-cyan/70"></div>
       </div>
-      <!-- Node 4: Solid Orbit Node (Mid, 12px) -->
-      <div class="node absolute top-[460px] left-[140px] w-3 h-3 rounded-full bg-accent-cyan/70"></div>
+  
     </div>
-
-  </div>
+  }
 
 </div>

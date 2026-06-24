@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, AfterViewInit, OnDestroy, inject, effect } from '@angular/core';
 import { JarvisService } from '../../../core/services/jarvis.service';
 import { AnimationService } from '../../../core/services/animation.service';
+import { SceneEngineService } from '../../../core/services/scene-engine.service';
 
 interface BgParticle3D {
   x: number;
@@ -30,10 +31,12 @@ interface BgParticle3D {
 export class FuturisticBg implements OnInit, AfterViewInit, OnDestroy {
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
+  private readonly sceneEngine = inject(SceneEngineService);
   private readonly el = inject(ElementRef);
 
   // Expose progress signal
   public readonly progress = this.jarvisService.progress;
+  public readonly activeSceneId = this.sceneEngine.activeSceneId;
 
   // 3D Canvas Particle Swarm variables
   private canvas: HTMLCanvasElement | null = null;

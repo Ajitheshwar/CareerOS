@@ -1,0 +1,596 @@
+.experience-scene-container {
+  transform-style: preserve-3d;
+  width: 100vw;
+  height: 100vh;
+  z-index: 13;
+  will-change: transform, opacity, filter;
+  background-color: transparent;
+}
+
+.scene-3d-wrapper {
+  transform-style: preserve-3d;
+  will-change: transform;
+  perspective: 1200px;
+}
+
+.experience-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* top and side HUD styles */
+.hud-top-header {
+  z-index: 10;
+  
+  .pulse-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #06b6d4;
+    box-shadow: 0 0 8px #06b6d4;
+    animation: indicator-blink-corr 1.5s ease-in-out infinite alternate;
+  }
+}
+
+.hud-left-sidebar {
+  z-index: 10;
+}
+
+.sidebar-block {
+  background: rgba(5, 8, 20, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 4px;
+}
+
+.hud-bottom-bar {
+  z-index: 10;
+  
+  .active-text {
+    font-weight: bold;
+    text-shadow: 0 0 6px currentColor;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Split-Screen Active Milestone Container */
+.active-milestone-split-container {
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  display: flex;
+  box-sizing: border-box;
+  padding: 100px 4% 100px 4%; // space for top & bottom HUD bars
+  will-change: opacity, transform;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease-out;
+  transform-style: preserve-3d;
+  
+  &.layout-reverse {
+    flex-direction: row-reverse;
+  }
+}
+
+/* Info Zone (45% column) */
+.info-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: all 0.5s ease;
+  z-index: 12;
+}
+
+.info-zone-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+}
+
+/* Phase Entrance Animations & Staggers */
+.phase-status-indicator {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(10, 15, 30, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding-top: 24px;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.phase-1-intro {
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(4px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+  pointer-events: none;
+  
+  &.active {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    pointer-events: auto;
+    transition-delay: 0ms;
+  }
+}
+
+.phase-3-tech-challenges {
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(4px);
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease, max-height 0.5s ease, margin-top 0.5s ease;
+  pointer-events: none;
+  
+  &.active {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    max-height: 1000px;
+    margin-top: 24px;
+    pointer-events: auto;
+    transition-delay: 350ms;
+  }
+}
+
+.phase-4-impact-learnings {
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(18px);
+  filter: blur(4px);
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease, max-height 0.5s ease, margin-top 0.5s ease;
+  pointer-events: none;
+  
+  &.active {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    max-height: 1000px;
+    margin-top: 24px;
+    pointer-events: auto;
+    transition-delay: 500ms;
+  }
+}
+
+/* Visual System Zone (55% column) */
+.visual-system-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+  perspective: 1000px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  
+  &.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition-delay: 180ms;
+  }
+}
+
+.visual-system-card {
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 8, 20, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+  
+  &.active-zoom {
+    transform: scale(1.03);
+  }
+  
+  /* Scanline and Grid hologram effect */
+  .panel-hologram-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 12px 12px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .panel-hologram-scanlines {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.15) 50%
+    ), linear-gradient(
+      90deg, 
+      rgba(255, 0, 0, 0.03), 
+      rgba(0, 255, 0, 0.01), 
+      rgba(0, 0, 255, 0.03)
+    );
+    background-size: 100% 3px, 6px 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.85;
+    animation: scanline-flicker-corr 0.15s infinite;
+  }
+
+  /* Absolute corner brackets */
+  .corner-bracket {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.4;
+    transition: opacity 0.3s, border-width 0.3s;
+
+    &.top-l { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
+    &.top-r { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
+    &.bot-l { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
+    &.bot-r { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
+  }
+
+  &:hover {
+    border-color: var(--theme-color) !important;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 
+                0 0 15px rgba(255, 255, 255, 0.02);
+    
+    .corner-bracket {
+      opacity: 0.8;
+    }
+  }
+}
+
+/* Bullet markers & lists */
+.bullet-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px currentColor;
+  flex-shrink: 0;
+}
+
+/* Custom scrollbars */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+}
+
+/* Scroll Container Wrapper and Overlays */
+.scroll-container-wrapper {
+  position: relative;
+  width: 100%;
+  
+  .bottom-gradient-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(10, 15, 30, 0.95) 0%, rgba(10, 15, 30, 0) 100%);
+    z-index: 10;
+    animation: fade-in-overlay 0.3s ease;
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    font-family: monospace;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.15em;
+    z-index: 11;
+    animation: bounce-indicator 1.8s infinite ease-in-out;
+
+    span {
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+      font-weight: bold;
+    }
+
+    span:nth-child(2) {
+      font-size: 11px;
+      margin-top: 1px;
+    }
+  }
+}
+
+@keyframes bounce-indicator {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 4px);
+  }
+}
+
+@keyframes fade-in-overlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* --- Milestone Specific Visual System Styles --- */
+.visual-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* 1. Engineering Foundation Blueprints */
+.network-nodes-container {
+  position: relative;
+  width: 100%;
+}
+
+.network-node {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  &.core-node {
+    animation: core-glow-pulse 3s infinite alternate;
+  }
+  
+  /* Phase reveal rules */
+  &:not(.core-node) {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+}
+
+.phase-2 {
+  .angular-node, .node-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+}
+
+.phase-3 {
+  .express-node, .mongo-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(168, 85, 247, 0.4) !important;
+  }
+}
+
+.phase-4 {
+  .ts-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+}
+
+/* 2. Vegetable Vendor Systems */
+.sys-sub-box {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.15;
+  transform: translateY(10px);
+}
+
+.phase-2 {
+  #vendor-box, #inventory-box, #order-box {
+    opacity: 0.9;
+    transform: translateY(0);
+    border-color: rgba(16, 185, 129, 0.4) !important;
+  }
+}
+
+.phase-3 {
+  #vendor-box, #inventory-box, #order-box, #analytics-box {
+    opacity: 0.9;
+    transform: translateY(0);
+    border-color: rgba(168, 85, 247, 0.4) !important;
+  }
+}
+
+.phase-4 {
+  #vendor-box, #inventory-box, #order-box, #analytics-box, #dashboard-box {
+    opacity: 0.9;
+    transform: translateY(0);
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+}
+
+/* 3. Software Engineer Enterprise Tree */
+.tree-node {
+  opacity: 0.15;
+  transform: scale(0.95);
+  transition: all 0.5s ease;
+}
+
+.phase-2 {
+  #hr-operations-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+}
+
+.phase-3 {
+  #hr-operations-node, #employee-systems-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(168, 85, 247, 0.4) !important;
+  }
+}
+
+.phase-4 {
+  #hr-operations-node, #employee-systems-node, #product-modules-node {
+    opacity: 0.85;
+    transform: scale(1);
+    border-color: rgba(59, 130, 246, 0.4) !important;
+  }
+}
+
+/* 4. Time Management Revamp Console */
+.console-card {
+  opacity: 0.15;
+  transform: translateY(10px) scale(0.95);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.phase-2 {
+  #attendance-card, #leave-card, #shift-card {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+}
+
+.phase-3 {
+  #attendance-card, #leave-card, #shift-card, #timesheet-card {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+}
+
+.phase-4 {
+  #attendance-card, #leave-card, #shift-card, #timesheet-card, #overtime-card, #dashboard-card {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+    border-color: rgba(239, 68, 68, 0.4) !important;
+  }
+}
+
+/* 5. Best Employee Award Trophy */
+.crystal-trophy-graphic {
+  transition: transform 0.5s ease;
+}
+
+/* 6. SDE-II Promotion Gateway */
+.gateway-visual-portal {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
+}
+
+/* 7. Scheduling Point Gantt Grid */
+.gantt-grid-system {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+/* 8. CareerOps Satellite Agents */
+.satellite-agent {
+  transform: scale(0.9);
+  transition: all 0.5s ease;
+}
+
+.phase-2 {
+  #resume-intel-agent, #job-matching-agent {
+    opacity: 0.9 !important;
+    transform: scale(1);
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+}
+
+.phase-3 {
+  #resume-intel-agent, #job-matching-agent, #interview-prep-agent, #career-mentor-agent {
+    opacity: 0.9 !important;
+    transform: scale(1);
+    border-color: rgba(168, 85, 247, 0.4) !important;
+  }
+}
+
+.phase-4 {
+  #resume-intel-agent, #job-matching-agent, #interview-prep-agent, #career-mentor-agent, #app-tracker-agent {
+    opacity: 0.9 !important;
+    transform: scale(1);
+    border-color: rgba(16, 185, 129, 0.4) !important;
+  }
+}
+
+/* Animation declarations */
+@keyframes core-glow-pulse {
+  0% { box-shadow: 0 0 10px rgba(6, 182, 212, 0.2); }
+  100% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.5); }
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .active-milestone-split-container {
+    flex-direction: column !important;
+    padding: 90px 16px 80px 16px;
+    overflow-y: auto;
+  }
+  
+  .visual-system-zone {
+    width: 100% !important;
+    height: auto !important;
+    margin-bottom: 24px;
+  }
+  
+  .info-zone {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .info-zone-inner {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Keyframes */
+@keyframes indicator-blink-corr {
+  0% { opacity: 0.3; transform: scale(0.9); }
+  100% { opacity: 1.0; transform: scale(1.15); }
+}
+
+@keyframes rect-blink-corr {
+  0% { opacity: 0.4; }
+  100% { opacity: 1.0; }
+}
+
+@keyframes scanline-flicker-corr {
+  0% { opacity: 0.85; }
+  50% { opacity: 0.92; }
+  100% { opacity: 0.85; }
+}

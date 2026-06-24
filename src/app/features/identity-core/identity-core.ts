@@ -98,18 +98,20 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
   // Orbit configuration for custom shape (Ellipse/Egg instead of Sphere)
   private readonly orbitScaleX = 1.35;
-  private readonly orbitScaleY = 0.75;
+  private readonly orbitScaleY = 0.85;
   private readonly orbitScaleZ = 1.25;
   private readonly eggAsymmetry = 0.35; // 0 for perfect ellipse, >0 for egg shape (wider at the bottom)
 
   // Orbiting Attribute Fragments (placed in 3D around centerpiece)
   private readonly rawFragments: AttributeFragment[] = [
-    { text: '2.5+ Years Experience', color: '#06b6d4', r: 445, theta: 0, phi: Math.PI / 2 - 0.2, speed: 0.002, phiSpeed: 0.006 },
+    { text: '3+ Years Experience', color: '#06b6d4', r: 445, theta: 0, phi: Math.PI / 2 - 0.2, speed: 0.002, phiSpeed: 0.006 },
     { text: 'Angular Specialist', color: '#14b8a6', r: 455, theta: (2 * Math.PI) / 6, phi: Math.PI / 2 + 0.3, speed: -0.0018, phiSpeed: -0.008 },
     { text: 'Enterprise Applications', color: '#2563eb', r: 435, theta: (4 * Math.PI) / 6, phi: Math.PI / 2 - 0.4, speed: 0.0022, phiSpeed: 0.005 },
     { text: 'Performance Engineering', color: '#8b5cf6', r: 460, theta: Math.PI, phi: Math.PI / 2 + 0.1, speed: -0.0015, phiSpeed: -0.004 },
     { text: 'AI Product Builder', color: '#10b981', r: 450, theta: (8 * Math.PI) / 6, phi: Math.PI / 2 - 0.1, speed: 0.0025, phiSpeed: 0.007 },
-    { text: 'SDE-II', color: '#06b6d4', r: 440, theta: (10 * Math.PI) / 6, phi: Math.PI / 2 + 0.4, speed: -0.0021, phiSpeed: -0.0006 }
+    { text: 'Multi-Agent Architecture', color: '#2563eb', r: 485, theta: 5 * Math.PI / 4, phi: Math.PI / 2 - 0.25, speed: -0.002, phiSpeed: 0.005 },
+    { text: 'SDE-II', color: '#06b6d4', r: 440, theta: (10 * Math.PI) / 6, phi: Math.PI / 2 + 0.4, speed: 0.0021, phiSpeed: -0.006 },
+    { text: 'Production Scale Delivery', color: '#8b5cf6', r: 410, theta: 7 * Math.PI / 4, phi: Math.PI / 2 + 0.2, speed: -0.0018, phiSpeed: -0.005 }
   ];
 
   // // Inner Orbit (320-380)
@@ -127,8 +129,6 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
   //   // Outer Orbit (520-620)
   //   { text: '100+ Components Built', color: '#10b981', r: 535, theta: Math.PI / 4, phi: Math.PI / 2 - 0.35, speed: 0.0012, phiSpeed: 0.0003 },
   //   { text: '5s → <1s Performance', color: '#06b6d4', r: 560, theta: 3 * Math.PI / 4, phi: Math.PI / 2 + 0.3, speed: -0.0014, phiSpeed: -0.0005 },
-  //   { text: 'Multi-Agent Architecture', color: '#2563eb', r: 585, theta: 5 * Math.PI / 4, phi: Math.PI / 2 - 0.25, speed: 0.0016, phiSpeed: 0.0004 },
-  //   { text: 'Production Scale Delivery', color: '#8b5cf6', r: 610, theta: 7 * Math.PI / 4, phi: Math.PI / 2 + 0.2, speed: -0.0012, phiSpeed: -0.0003 }
 
   // Easing helper
   private easeOutCubic(t: number): number {
@@ -372,40 +372,40 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     };
 
     // 2. Draw 3D Orbit Ring Paths
-    const drawRing3D = (radius: number, rotX: number, rotY: number, color: string, alpha: number) => {
-      this.ctx!.save();
-      this.ctx!.strokeStyle = color;
-      this.ctx!.lineWidth = 0.8;
-      this.ctx!.beginPath();
+    // const drawRing3D = (radius: number, rotX: number, rotY: number, color: string, alpha: number) => {
+    //   this.ctx!.save();
+    //   this.ctx!.strokeStyle = color;
+    //   this.ctx!.lineWidth = 0.8;
+    //   this.ctx!.beginPath();
 
-      const segments = 60;
-      let firstPoint = true;
+    //   const segments = 60;
+    //   let firstPoint = true;
 
-      for (let j = 0; j <= segments; j++) {
-        const a = (j * Math.PI * 2) / segments;
-        // Ring lies in X-Z plane originally
-        let rx = radius * Math.cos(a);
-        let ry = 0;
-        let rz = radius * Math.sin(a);
+    //   for (let j = 0; j <= segments; j++) {
+    //     const a = (j * Math.PI * 2) / segments;
+    //     // Ring lies in X-Z plane originally
+    //     let rx = radius * Math.cos(a);
+    //     let ry = 0;
+    //     let rz = radius * Math.sin(a);
 
-        // Rotate ring around local X and Y for tilt orientation
-        let pt = rotatePointX(rx, ry, rz, rotX);
-        pt = rotatePointY(pt.x, pt.y, pt.z, rotY);
+    //     // Rotate ring around local X and Y for tilt orientation
+    //     let pt = rotatePointX(rx, ry, rz, rotX);
+    //     pt = rotatePointY(pt.x, pt.y, pt.z, rotY);
 
-        // Project relative to camera
-        const screenPt = project(pt.x, pt.y, pt.z);
-        if (!screenPt) continue;
+    //     // Project relative to camera
+    //     const screenPt = project(pt.x, pt.y, pt.z);
+    //     if (!screenPt) continue;
 
-        if (firstPoint) {
-          this.ctx!.moveTo(screenPt.x, screenPt.y);
-          firstPoint = false;
-        } else {
-          this.ctx!.lineTo(screenPt.x, screenPt.y);
-        }
-      }
-      this.ctx!.stroke();
-      this.ctx!.restore();
-    };
+    //     if (firstPoint) {
+    //       this.ctx!.moveTo(screenPt.x, screenPt.y);
+    //       firstPoint = false;
+    //     } else {
+    //       this.ctx!.lineTo(screenPt.x, screenPt.y);
+    //     }
+    //   }
+    //   this.ctx!.stroke();
+    //   this.ctx!.restore();
+    // };
 
     // Render outer rings with rotation relative to time
     const tRing1 = this.renderTime * 0.004;
