@@ -39,6 +39,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Hide default browser cursor on desktop fine pointer devices */
+@media (min-width: 1024px) and (pointer: fine) {
+  html, body,
+  html *, body *,
+  html a, body a,
+  html button, body button,
+  html input, body input,
+  html select, body select,
+  html textarea, body textarea,
+  html .cursor-pointer, body .cursor-pointer {
+    cursor: none !important;
+  }
+}
+
 /* Glassmorphism foundation class */
 .glass-panel, .glass-panel-interactive {
   background: rgba(11, 16, 32, 0.45);

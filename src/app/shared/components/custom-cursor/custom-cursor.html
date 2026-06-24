@@ -1,0 +1,83 @@
+@if (isVisible()) {
+  <!-- Background Particle Trails -->
+  <div class="cursor-particles">
+    @for (p of particles(); track p.id) {
+      <div 
+        class="cursor-particle"
+        [style.transform]="'translate3d(' + p.x + 'px, ' + p.y + 'px, 0)'"
+        [style.width.px]="p.size"
+        [style.height.px]="p.size"
+        [style.opacity]="p.opacity"
+        [style.background-color]="p.color"
+        [style.--theme-color]="p.color">
+      </div>
+    }
+  </div>
+
+  <!-- Primary Custom Cursor Container -->
+  <div 
+    class="custom-cursor-container" 
+    [style.transform]="cursorTransform()"
+    [style.color]="themeColor()"
+    [style.--theme-color]="themeColor()">
+    
+    <div class="cursor-wrapper" [class]="state() | lowercase">
+      <!-- 1. Sleek Triangular Pointer SVG -->
+      <svg class="pointer-svg" viewBox="0 0 32 32" fill="none" stroke="currentColor">
+        <!-- Sleek Arrowhead Path -->
+        <path 
+          d="M2 2 L28 10 L16 16 L10 28 Z" 
+          stroke-width="1.8" 
+          stroke-linejoin="round" 
+          stroke-linecap="round"
+          class="pointer-path"
+        />
+        <!-- Hollow Inner Circle Outline -->
+        <circle 
+          cx="13" 
+          cy="13" 
+          r="5.5" 
+          stroke-width="1.2" 
+          stroke-dasharray="1 1"
+          class="hollow-circle-path" 
+        />
+      </svg>
+
+      <!-- 2. Central Core Area (visual center at 13, 13) -->
+      <div class="cursor-center">
+        <!-- Glowing AI energy core -->
+        <div class="energy-core"></div>
+        
+        <!-- Radial glow backdrop behind the core -->
+        <div class="radial-glow"></div>
+        
+        <!-- 3. Hover Outer/Inner HUD Rings -->
+        <div class="hover-ring outer"></div>
+        <div class="hover-ring inner"></div>
+        
+        <!-- 4. Loading Concentric Spinner Rings -->
+        <div class="loading-ring outer"></div>
+        <div class="loading-ring inner"></div>
+        
+        <!-- 5. Precision Corner Brackets [ ] -->
+        <div class="precision-brackets">
+          <div class="bracket top-left"></div>
+          <div class="bracket top-right"></div>
+          <div class="bracket bottom-left"></div>
+          <div class="bracket bottom-right"></div>
+        </div>
+      </div>
+
+      <!-- 6. Bottom-Right Disabled/Warning Icon -->
+      <div class="disabled-icon">
+        <div class="warning-circle"></div>
+        <div class="warning-slash"></div>
+      </div>
+
+      <!-- 7. Interactive Click Ripple Layer -->
+      @if (state() === 'CLICK') {
+        <div class="click-ripple"></div>
+      }
+    </div>
+  </div>
+}

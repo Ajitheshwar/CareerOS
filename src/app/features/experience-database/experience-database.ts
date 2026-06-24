@@ -775,7 +775,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
                 container.scrollTo({ top: Math.max(0, scrollOffset), behavior: 'smooth' });
               }
             }
-          }, 1000); // Shorter timeout for immediate responsive scrolling as DOM settles
+          }, 750); // Shorter timeout for immediate responsive scrolling as DOM settles
         } else if (currentPhase < this.lastPhase) {
           // User scrolled backward
           this.lastPhase = currentPhase;
@@ -825,6 +825,21 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
 
   onProgress(progress: number): void {
     // Computed signals handle reactively
+  }
+
+  onMilestoneClick(idx: number): void {
+    const midpoints = [0.09, 0.22, 0.35, 0.50, 0.65, 0.78, 0.88, 0.95];
+    const localP = midpoints[idx];
+
+    const metadata = this.sceneEngine.scenesMetadata().find(m => m.id === 'experience');
+    if (metadata) {
+      const globalP = metadata.scrollStart + localP * (metadata.scrollEnd - metadata.scrollStart);
+      const maxScroll = this.sceneEngine.totalScrollHeight() - (typeof window !== 'undefined' ? window.innerHeight : 0);
+      const scrollPixel = globalP * maxScroll;
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: scrollPixel, behavior: 'smooth' });
+      }
+    }
   }
 
   private initCanvasAndAmbient(): void {

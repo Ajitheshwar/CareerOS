@@ -41,6 +41,13 @@ interface CanvasParticle {
   angle?: number;
 }
 
+interface SidebarBlock {
+  title: string;
+  borderColorClass: string;
+  textColorClass: string;
+  items: string[];
+}
+
 @Component({
   selector: 'app-skills-engine',
   standalone: true,
@@ -53,6 +60,65 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
   private readonly el = inject(ElementRef);
+
+  public readonly sidebarBlocks: SidebarBlock[] = [
+    {
+      title: 'FRAGMENTS_LOADED:',
+      borderColorClass: 'border-accent-cyan/20',
+      textColorClass: 'text-accent-cyan',
+      items: [
+        '// 100+ Components Built',
+        '// Enterprise Applications',
+        '// Reusable Architecture',
+        '// Performance Optimization',
+        '// Design Systems'
+      ]
+    },
+    {
+      title: 'NETWORK_PIPES:',
+      borderColorClass: 'border-accent-green/20',
+      textColorClass: 'text-accent-green',
+      items: [
+        '// REST Architecture',
+        '// Async Packet Streams',
+        '// Auth Token Handshakes',
+        '// Secure Cryptography'
+      ]
+    },
+    {
+      title: 'STORAGE_SECTORS:',
+      borderColorClass: 'border-accent-blue/20',
+      textColorClass: 'text-accent-blue',
+      items: [
+        '// Document Aggregations',
+        '// Optimized Query Latency',
+        '// Real-time Cloud Sync',
+        '// Normalized Data Structures'
+      ]
+    },
+    {
+      title: 'COGNITIVE_NET:',
+      borderColorClass: 'border-accent-yellow/20',
+      textColorClass: 'text-accent-yellow',
+      items: [
+        '// Autonomous Agents',
+        '// Prompt Graph Loops',
+        '// Memory Abstractions',
+        '// LLM Assisted Workflows'
+      ]
+    },
+    {
+      title: 'FOUNDRY_CORE:',
+      borderColorClass: 'border-accent-purple/20',
+      textColorClass: 'text-accent-purple',
+      items: [
+        '// Scalable Architectures',
+        '// Clean Code Standards',
+        '// Team Agile Sprints',
+        '// Domain Driven Design'
+      ]
+    }
+  ];
 
   // Active state and scroll progress normalized within Scene 3 limits (0.0 to 1.0)
   public readonly active = input<boolean>(false);
@@ -251,6 +317,21 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
   onProgress(progress: number): void {
     // Computed signals handle reactively, no operations needed in progress hook
+  }
+
+  onStageClick(idx: number): void {
+    const localPs = [0.10, 0.30, 0.50, 0.70, 0.90];
+    const localP = localPs[idx];
+
+    const metadata = this.sceneEngine.scenesMetadata().find(m => m.id === 'skills');
+    if (metadata) {
+      const globalP = metadata.scrollStart + localP * (metadata.scrollEnd - metadata.scrollStart);
+      const maxScroll = this.sceneEngine.totalScrollHeight() - (typeof window !== 'undefined' ? window.innerHeight : 0);
+      const scrollPixel = globalP * maxScroll;
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: scrollPixel, behavior: 'smooth' });
+      }
+    }
   }
 
   private initCanvasAndAmbient(): void {
@@ -558,7 +639,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
         tilts.forEach((tilt, tIdx) => {
           this.ctx!.beginPath();
           let firstPt = true;
-          const rotSpeed = this.renderTime * 0.005 * (tIdx === 0 ? 1 : -1);
+          const rotSpeed = this.renderTime * 0.0025 * (tIdx === 0 ? 1 : -1);
 
           for (let j = 0; j <= segmentCount; j++) {
             const a = (j * Math.PI * 2) / segmentCount;
@@ -629,7 +710,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
         const packetCount = 8;
         this.ctx!.fillStyle = `rgba(34, 197, 94, ${sWeight * 0.85})`;
         for (let k = 0; k < packetCount; k++) {
-          const pathPercent = ((this.renderTime * 0.008 + k / packetCount) % 1.0);
+          const pathPercent = ((this.renderTime * 0.004 + k / packetCount) % 1.0);
           const px = -gridLength / 2 + pathPercent * gridLength;
           const py = gridLinesY[k % gridLinesY.length];
 
@@ -819,24 +900,27 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
       // Handle Assembly / Disassembly scaling and positioning offset:
       let assembleMultiplier = 1.0;
+      let radiusMultiplier = 1.0;
       let isDisassembling = false;
       let disFactor = 0;
 
       if (t < 0.25) {
         // Assembly phase
         assembleMultiplier = t / 0.25;
+        radiusMultiplier = t / 0.25;
       } else if (t > 0.75) {
         // Disassembly phase
         assembleMultiplier = (1.0 - t) / 0.25;
+        radiusMultiplier = 1.0; // Keep full radius on disassembly/exit to fade out in place
         isDisassembling = true;
         disFactor = (t - 0.75) / 0.25;
       }
 
-      // Scale coordinates back to center (0,0) based on assembly/disassembly factor
-      const effectiveRadius = sk.radius * 0.70 * assembleMultiplier;
+      // Scale coordinates back to center (0,0) based on assembly factor
+      const effectiveRadius = sk.radius * 0.70 * radiusMultiplier;
       
       // Slow rotation on the orbit ring
-      const orbitSpeed = this.renderTime * 0.003;
+      const orbitSpeed = this.renderTime * 0.0015;
       const targetAngle = sk.angle + orbitSpeed;
 
       const sx = effectiveRadius * Math.cos(targetAngle);

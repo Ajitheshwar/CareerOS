@@ -268,9 +268,11 @@
           <div class="absolute top-0 bottom-0 left-0 bg-accent-cyan transition-all duration-300" [style.width.%]="progress() * 100"></div>
         </div>
         <div class="flex-none flex items-center space-x-3 text-[12px]">
-          @for (ms of milestonesList; track ms.id) {
-            <span [class.active-text]="activeMilestoneIndex() === ms.id - 1"
-                  [style.color]="activeMilestoneIndex() === ms.id - 1 ? ms.color : ''">
+          @for (ms of milestonesList; track ms.id; let msIdx = $index) {
+            <span [class.active-text]="activeMilestoneIndex() === msIdx"
+                  [style.color]="activeMilestoneIndex() === msIdx ? ms.color : ''"
+                  (click)="onMilestoneClick(msIdx)"
+                  class="cursor-pointer transition-all duration-300">
               0{{ ms.id }}
             </span>
             @if (ms.id < 8) {

@@ -3,8 +3,7 @@ export type SceneId =
   | 'identity'
   | 'skills'
   | 'experience'
-  | 'ai'
-  | 'contact';
+  | 'ai';
 
 export interface SceneMetadata {
   id: SceneId;

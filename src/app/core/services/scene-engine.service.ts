@@ -14,8 +14,7 @@ export class SceneEngineService {
     { id: 'identity', name: 'Identity Core' },
     { id: 'skills', name: 'Skills Engine' },
     { id: 'experience', name: 'Experience Database' },
-    { id: 'ai', name: 'AI Core' },
-    { id: 'contact', name: 'Contact Terminal' }
+    { id: 'ai', name: 'AI Core' }
   ];
 
   // Track viewport height to calculate vh-based heights dynamically
@@ -29,8 +28,7 @@ export class SceneEngineService {
     identity: (vh) => vh,
     skills: (vh) => 1250, // 5 stages * 250px = 1250px
     experience: (vh) => 5000,
-    ai: (vh) => vh,
-    contact: (vh) => vh
+    ai: (vh) => vh
   };
 
   // Compute the total page scroll height dynamically in pixels

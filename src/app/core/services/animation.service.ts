@@ -57,7 +57,7 @@ export class AnimationService implements OnDestroy {
   /**
    * Animate an element from starting properties to current properties
    */
-  public from(target: gsap.DOMTarget, vars: gsap.TweenVars): gsap.core.Tween | null {
+  public from(target: gsap.DOMTarget | object, vars: gsap.TweenVars): gsap.core.Tween | null {
     if (!this.isBrowser) return null;
     return gsap.from(target, vars);
   }
@@ -65,7 +65,7 @@ export class AnimationService implements OnDestroy {
   /**
    * Animate an element from current properties to ending properties
    */
-  public to(target: gsap.DOMTarget, vars: gsap.TweenVars): gsap.core.Tween | null {
+  public to(target: gsap.DOMTarget | object, vars: gsap.TweenVars): gsap.core.Tween | null {
     if (!this.isBrowser) return null;
     return gsap.to(target, vars);
   }
@@ -73,7 +73,7 @@ export class AnimationService implements OnDestroy {
   /**
    * Set properties of target elements immediately without animating
    */
-  public set(target: gsap.DOMTarget, vars: gsap.TweenVars): void {
+  public set(target: gsap.DOMTarget | object, vars: gsap.TweenVars): void {
     if (!this.isBrowser) return;
     gsap.set(target, vars);
   }

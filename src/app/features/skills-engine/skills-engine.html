@@ -45,55 +45,15 @@
 
       <!-- Right Achievement / Context Panel for active Stage -->
       <div class="hud-right-sidebar absolute right-8 top-32 w-52 font-mono text-[9px] text-white/40 space-y-4 hidden lg:block pointer-events-auto">
-        @if (activeStageIndex() === 0) {
-          <div class="sidebar-block border-r border-accent-cyan/20 pr-3 py-1 text-right">
-            <div class="text-accent-cyan tracking-wider font-bold text-[10px]">FRAGMENTS_LOADED:</div>
-            <div class="mt-2 space-y-1">
-              <div>// 100+ Components Built</div>
-              <div>// Enterprise Applications</div>
-              <div>// Reusable Architecture</div>
-              <div>// Performance Optimization</div>
-              <div>// Design Systems</div>
+        @if (sidebarBlocks[activeStageIndex()]; as block) {
+          <div [class]="'sidebar-block border-r pr-3 py-1 text-right ' + block.borderColorClass">
+            <div [class]="'tracking-wider font-bold text-[10px] ' + block.textColorClass">
+              {{ block.title }}
             </div>
-          </div>
-        } @else if (activeStageIndex() === 1) {
-          <div class="sidebar-block border-r border-accent-green/20 pr-3 py-1 text-right">
-            <div class="text-accent-green tracking-wider font-bold text-[10px]">NETWORK_PIPES:</div>
             <div class="mt-2 space-y-1">
-              <div>// REST Architecture</div>
-              <div>// Async Packet Streams</div>
-              <div>// Auth Token Handshakes</div>
-              <div>// Secure Cryptography</div>
-            </div>
-          </div>
-        } @else if (activeStageIndex() === 2) {
-          <div class="sidebar-block border-r border-accent-blue/20 pr-3 py-1 text-right">
-            <div class="text-accent-blue tracking-wider font-bold text-[10px]">STORAGE_SECTORS:</div>
-            <div class="mt-2 space-y-1">
-              <div>// Document Aggregations</div>
-              <div>// Optimized Query Latency</div>
-              <div>// Real-time Cloud Sync</div>
-              <div>// Normalized Data Structures</div>
-            </div>
-          </div>
-        } @else if (activeStageIndex() === 3) {
-          <div class="sidebar-block border-r border-accent-yellow/20 pr-3 py-1 text-right">
-            <div class="text-accent-yellow tracking-wider font-bold text-[10px]">COGNITIVE_NET:</div>
-            <div class="mt-2 space-y-1">
-              <div>// Autonomous Agents</div>
-              <div>// Prompt Graph Loops</div>
-              <div>// Memory Abstractions</div>
-              <div>// LLM Assisted Workflows</div>
-            </div>
-          </div>
-        } @else if (activeStageIndex() === 4) {
-          <div class="sidebar-block border-r border-accent-purple/20 pr-3 py-1 text-right">
-            <div class="text-accent-purple tracking-wider font-bold text-[10px]">FOUNDRY_CORE:</div>
-            <div class="mt-2 space-y-1">
-              <div>// Scalable Architectures</div>
-              <div>// Clean Code Standards</div>
-              <div>// Team Agile Sprints</div>
-              <div>// Domain Driven Design</div>
+              @for (item of block.items; track item) {
+                <div>{{ item }}</div>
+              }
             </div>
           </div>
         }
@@ -119,10 +79,10 @@
                [style.border-color]="node.color + '33'">
             
             <div class="flex items-center space-x-2">
-              <span class="skill-bracket-left">[</span>
+              <!-- <span class="skill-bracket-left">[</span> -->
               <span class="skill-dot" [style.background-color]="node.color" [style.color]="node.color"></span>
               <span class="skill-text font-mono text-[9px] md:text-[12px] lg:text-[16px] uppercase tracking-[0.16em]">{{ node.name }}</span>
-              <span class="skill-bracket-right">]</span>
+              <!-- <span class="skill-bracket-right">]</span> -->
             </div>
 
             <!-- Hover Expanded Details Section -->
@@ -143,15 +103,15 @@
           <div class="absolute top-0 bottom-0 left-0 bg-accent-cyan transition-all duration-300" [style.width.%]="progress() * 100"></div>
         </div>
         <div class="flex-none flex items-center space-x-4">
-          <span [class.text-accent-cyan]="activeStageIndex() === 0">01_FRONTEND</span>
+          <span [class.text-accent-cyan]="activeStageIndex() === 0" (click)="onStageClick(0)" class="cursor-pointer transition-colors duration-300">01_FRONTEND</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-green]="activeStageIndex() === 1">02_BACKEND</span>
+          <span [class.text-accent-green]="activeStageIndex() === 1" (click)="onStageClick(1)" class="cursor-pointer transition-colors duration-300">02_BACKEND</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-blue]="activeStageIndex() === 2">03_DATA</span>
+          <span [class.text-accent-blue]="activeStageIndex() === 2" (click)="onStageClick(2)" class="cursor-pointer transition-colors duration-300">03_DATA</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-yellow]="activeStageIndex() === 3">04_AI</span>
+          <span [class.text-accent-yellow]="activeStageIndex() === 3" (click)="onStageClick(3)" class="cursor-pointer transition-colors duration-300">04_AI</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-purple]="activeStageIndex() === 4">05_FOUNDATION</span>
+          <span [class.text-accent-purple]="activeStageIndex() === 4" (click)="onStageClick(4)" class="cursor-pointer transition-colors duration-300">05_FOUNDATION</span>
         </div>
       </div>
 

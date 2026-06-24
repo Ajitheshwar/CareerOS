@@ -1,6 +1,9 @@
 <!-- Ambient Futuristic Atmosphere Background -->
 <app-futuristic-bg />
 
+<!-- Futuristic Custom Cursor -->
+<app-custom-cursor />
+
 <!-- Main 3D Viewport Container -->
 <div class="viewport-container">
   
@@ -24,10 +27,6 @@
   <app-ai-core 
     [active]="sceneState().ai.isActive" 
     [progress]="sceneState().ai.progress" />
-      
-  <app-contact-terminal 
-    [active]="sceneState().contact.isActive" 
-    [progress]="sceneState().contact.progress" />
 
   <!-- Global persistent JARVIS Companion Core -->
   <app-jarvis-core />

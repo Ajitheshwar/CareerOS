@@ -1,0 +1,306 @@
+.ai-scene-container {
+  transform-style: preserve-3d;
+  width: 100vw;
+  height: 100vh;
+  z-index: 13;
+  will-change: transform, opacity, filter;
+  background-color: transparent;
+}
+
+.ai-3d-wrapper {
+  transform-style: preserve-3d;
+  will-change: transform;
+  perspective: 1200px;
+}
+
+.ai-bg-canvas {
+  z-index: 1;
+}
+
+/* Central AI Core Center Layout */
+.ai-core-quantum-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  height: 340px;
+  z-index: 10;
+  transform-style: preserve-3d;
+  will-change: transform;
+  
+  .ai-core-canvas {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+}
+
+/* Future Vision Statement */
+.future-vision-container {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1), transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(5, 8, 22, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 24px;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.02);
+  
+  &.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+}
+
+/* Contact Nodes extending from AI Core */
+.contact-node {
+  z-index: 25;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+
+  .contact-icon-wrapper {
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    width: 44px;
+    height: 44px;
+    
+    i {
+      font-size: 16px;
+    }
+  }
+
+  .holographic-line-contact {
+    stroke: currentColor;
+    stroke-width: 0.8;
+    stroke-dasharray: 2, 8;
+    opacity: 0.35;
+    animation: contact-dash-pulse 3s linear infinite;
+  }
+
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.15) !important;
+    
+    .contact-icon-wrapper {
+      border-color: var(--node-color) !important;
+      box-shadow: 0 0 15px var(--node-color), inset 0 0 8px var(--node-color);
+      color: #ffffff !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    span {
+      border-color: var(--node-color) !important;
+      color: #ffffff !important;
+      background: rgba(5, 8, 22, 0.7) !important;
+    }
+  }
+}
+
+@keyframes contact-dash-pulse {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* Outer System Ring Nodes */
+.system-node {
+  box-sizing: border-box;
+  z-index: 20;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  
+  .node-reactor-wrapper {
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    background: rgba(5, 8, 20, 0.65);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    span {
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.3s;
+    }
+  }
+
+  .node-scanner-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 50%, rgba(255, 255, 255, 0.05) 90%, var(--theme-color) 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    animation: scan-rotate 4s linear infinite;
+  }
+
+  &.active {
+    .node-reactor-wrapper {
+      border-color: var(--theme-color) !important;
+      box-shadow: 0 0 25px var(--theme-color), inset 0 0 15px var(--theme-color);
+      background: rgba(5, 8, 20, 0.85);
+      
+      span {
+        color: #ffffff !important;
+        text-shadow: 0 0 8px #ffffff;
+      }
+    }
+
+    .node-scanner-sweep {
+      opacity: 0.6;
+    }
+    
+    .node-label {
+      border-color: var(--theme-color) !important;
+      color: #ffffff !important;
+      background: rgba(5, 8, 20, 0.95);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.02);
+      text-shadow: 0 0 6px var(--theme-color);
+    }
+  }
+
+  &.inactive:hover {
+    .node-reactor-wrapper {
+      border-color: var(--theme-color) !important;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      opacity: 0.9;
+    }
+  }
+}
+
+@keyframes scan-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Holographic Constellation Lines & Strength Nodes */
+.holographic-line-pulse {
+  stroke: currentColor;
+  stroke-width: 1.2px;
+  stroke-dasharray: 4, 8;
+  opacity: 0.55;
+  animation: sweep-dash 3s linear infinite;
+}
+
+@keyframes sweep-dash {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+.strength-node-pill {
+  white-space: normal;
+  text-align: center;
+  max-width: 110px;
+  word-wrap: break-word;
+  animation: float-attribute 4s ease-in-out infinite alternate;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: rgba(4, 7, 18, 0.88) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: #ffffff !important;
+    background: rgba(4, 7, 18, 0.96) !important;
+    border-color: var(--theme-color) !important;
+    box-shadow: 0 0 15px var(--theme-color), 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+@keyframes float-attribute {
+  0% { transform: translate(-50%, -50%) translateY(-2px); }
+  100% { transform: translate(-50%, -50%) translateY(2px); }
+}
+
+/* Glassmorphic HUD Information Panel (Right Column) */
+.hud-info-panel {
+  background: rgba(4, 8, 20, 0.48);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+  will-change: transform, opacity;
+  pointer-events: auto;
+}
+
+.corner-bracket {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-style: solid;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.5;
+  transition: opacity 0.3s, border-width 0.3s;
+
+  &.top-l { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
+  &.top-r { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
+  &.bot-l { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
+  &.bot-r { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
+}
+
+.pulse-indicator-theme {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse-diag 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-diag {
+  from { opacity: 0.4; transform: scale(0.9); }
+  to { opacity: 1.0; transform: scale(1.15); }
+}
+
+.hud-bottom-bar {
+  z-index: 30;
+  
+  .active-text {
+    font-weight: bold;
+    text-shadow: 0 0 8px currentColor;
+    transition: all 0.3s ease;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ai-core-quantum-center {
+    top: 35% !important;
+  }
+
+  .hud-info-panel {
+    right: 50% !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: 80px !important;
+    transform: translateX(50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 500px !important;
+    padding: 16px !important;
+  }
+
+  .hud-bottom-bar {
+    bottom: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    font-size: 10px !important;
+    
+    .flex-none {
+      font-size: 10px !important;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .ai-core-quantum-center {
+    width: 240px !important;
+    height: 240px !important;
+  }
+  
+  .future-vision-container {
+    width: 280px !important;
+    padding: 12px 16px !important;
+  }
+}

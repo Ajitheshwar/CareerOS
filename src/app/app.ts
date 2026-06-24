@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 // Layout / Shared components
 import { FuturisticBg } from './shared/components/futuristic-bg/futuristic-bg';
 import { JarvisCore } from './shared/components/jarvis-core/jarvis-core';
+import { CustomCursor } from './shared/components/custom-cursor/custom-cursor';
 
 // Scene components
 import { BootSequence } from './features/boot-sequence/boot-sequence';
@@ -11,7 +12,6 @@ import { IdentityCore } from './features/identity-core/identity-core';
 import { SkillsEngine } from './features/skills-engine/skills-engine';
 import { ExperienceDatabase } from './features/experience-database/experience-database';
 import { AiCore } from './features/ai-core/ai-core';
-import { ContactTerminal } from './features/contact-terminal/contact-terminal';
 
 // Services
 import { SceneEngineService } from './core/services/scene-engine.service';
@@ -24,12 +24,12 @@ import { AnimationService } from './core/services/animation.service';
     CommonModule,
     FuturisticBg,
     JarvisCore,
+    CustomCursor,
     BootSequence,
     IdentityCore,
     SkillsEngine,
     ExperienceDatabase,
-    AiCore,
-    ContactTerminal
+    AiCore
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

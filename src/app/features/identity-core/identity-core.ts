@@ -426,7 +426,7 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
     this.particles.forEach(p => {
       // Rotate particle on sphere
-      p.phi += p.speed;
+      p.phi += p.speed * 0.4;
       
       const px = sphereRadius * Math.sin(p.theta) * Math.cos(p.phi);
       const py = sphereRadius * Math.cos(p.theta);
@@ -463,8 +463,8 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
     this.rawFragments.forEach(f => {
       // Slowly rotate fragments around the Y and X orbital axis
-      f.theta += f.speed;
-      f.phi += f.phiSpeed;
+      f.theta += f.speed * 0.35;
+      f.phi += f.phiSpeed * 0.35;
 
       const effectiveRadius = f.r * fragRadiusMultiplier;
       
