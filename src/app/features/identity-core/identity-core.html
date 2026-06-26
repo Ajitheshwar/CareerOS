@@ -24,7 +24,7 @@
               <stop offset="15%" stop-color="var(--color-accent-cyan)" stop-opacity="0.6" />
               <stop offset="45%" stop-color="var(--color-accent-blue)" stop-opacity="0.25" />
               <stop offset="75%" stop-color="var(--color-accent-purple)" stop-opacity="0.08" />
-              <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+              <stop offset="100%" stop-color="var(--color-accent-purple)" stop-opacity="0" />
             </radialGradient>
           </defs>
           <!-- Volumetric Outer Pulse Halo -->
@@ -40,16 +40,16 @@
       <!-- Primary Content (Integrated directly into the environment) -->
       <div class="identity-text-wrapper absolute flex flex-col items-center justify-center text-center px-6 pointer-events-auto"
            [style]="contentStyle()">
-          <h1 class="name-text font-sans font-medium tracking-[0.24em] text-l md:text-xl text-white select-none">
+        <span class="label-sm text-on-surface/70 uppercase tracking-[0.25em] mb-2 select-none">
           Hi! I'm
-        </h1>
-        <h1 class="name-text font-sans font-extrabold tracking-[0.24em] text-4xl md:text-6xl text-white uppercase select-none">
+        </span>
+        <h1 class="name-text display-xl select-none max-md:text-[32px] max-md:leading-[1.2] max-md:tracking-[0.02em] uppercase">
           AJITHESHWAR VADLA
         </h1>
-        <div class="role-text font-mono text-accent-cyan tracking-[0.38em] uppercase text-xs md:text-sm mt-4">
+        <div class="role-text label-sm text-primary-container uppercase mt-4">
           Software Engineer
         </div>
-        <p class="pitch-text font-sans font-light text-white/60 max-w-[460px] text-xs md:text-sm mt-5 leading-relaxed tracking-wide">
+        <p class="pitch-text body-md text-on-surface-variant max-w-[460px] mt-5 select-none">
           Building scalable enterprise systems and AI-powered products.
         </p>
       </div>
@@ -63,16 +63,16 @@
              [style.display]="frag.opacity <= 0.01 ? 'none' : 'flex'">
           
           <!-- Holographic Connection Vector Line (drawn from centerpiece to fragment coordinate) -->
-          <div class="hud-connection-line" 
+          <!-- <div class="hud-connection-line" 
                [style.width.px]="frag.vectorLength" 
                [style.transform]="frag.vectorRotation"
-               [style.opacity]="frag.opacity * 0.35"></div>
+               [style.opacity]="frag.opacity * 0.35"></div> -->
 
           <!-- Fragment Info Frame -->
           <div class="hud-metadata-frame flex items-center space-x-2">
             <!-- <span class="hud-bracket-left">[</span> -->
             <span class="hud-dot" [style.background-color]="frag.color"></span>
-            <span class="hud-text font-mono text-[9px] md:text-[12px] lg:text-[16px] uppercase tracking-[0.16em]">{{ frag.text }}</span>
+            <span class="hud-text font-mono text-[16px] md:text-[14px] lg:text-[15px] uppercase tracking-[0.16em]">{{ frag.text }}</span>
             <!-- <span class="hud-bracket-right">]</span> -->
           </div>
         </div>

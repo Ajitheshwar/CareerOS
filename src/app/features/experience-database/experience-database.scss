@@ -1,3 +1,4 @@
+
 .experience-scene-container {
   transform-style: preserve-3d;
   width: 100vw;
@@ -11,6 +12,9 @@
   transform-style: preserve-3d;
   will-change: transform;
   perspective: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .experience-canvas {
@@ -25,13 +29,14 @@
 /* top and side HUD styles */
 .hud-top-header {
   z-index: 10;
+  padding: calc(var(--spacing) * 8) calc(var(--spacing) * 8) 0px;
   
   .pulse-indicator {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: #06b6d4;
-    box-shadow: 0 0 8px #06b6d4;
+    background-color: var(--color-primary-container);
+    box-shadow: 0 0 8px var(--color-primary-container);
     animation: indicator-blink-corr 1.5s ease-in-out infinite alternate;
   }
 }
@@ -41,15 +46,16 @@
 }
 
 .sidebar-block {
-  background: rgba(5, 8, 20, 0.2);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(17, 19, 27, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
 .hud-bottom-bar {
   z-index: 10;
-  
+  padding: 0px calc(var(--spacing) * 4) calc(var(--spacing) * 8);
   .active-text {
     font-weight: bold;
     text-shadow: 0 0 6px currentColor;
@@ -59,12 +65,14 @@
 
 /* Split-Screen Active Milestone Container */
 .active-milestone-split-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   width: 100vw;
   height: 100vh;
   z-index: 10;
-  display: flex;
   box-sizing: border-box;
-  padding: 100px 4% 100px 4%; // space for top & bottom HUD bars
+  padding: 0 4%; // space for top & bottom HUD bars
   will-change: opacity, transform;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease-out;
   transform-style: preserve-3d;
@@ -107,13 +115,13 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(10, 15, 30, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(17, 19, 27, 0.90);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding-top: 24px;
   padding-bottom: 12px;
   margin-bottom: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 }
 
@@ -189,6 +197,7 @@
   transform: translateY(18px);
   transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
+  overflow: hidden;
   
   &.active {
     opacity: 1;
@@ -201,10 +210,8 @@
 .visual-system-card {
   position: relative;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(4, 8, 20, 0.45);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(17, 19, 27, 0.45);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
   overflow: hidden;
@@ -306,7 +313,7 @@
     right: 0;
     height: 45px;
     pointer-events: none;
-    background: linear-gradient(to top, rgba(10, 15, 30, 0.95) 0%, rgba(10, 15, 30, 0) 100%);
+    background: linear-gradient(to top, #11131b 0%, rgba(17, 19, 27, 0) 100%);
     z-index: 10;
     animation: fade-in-overlay 0.3s ease;
   }
@@ -554,27 +561,114 @@
 
 /* Responsive Media Queries */
 @media (max-width: 768px) {
+  /* Turn the fixed viewport container into a natural-flow scrollable column */
+  .hud-top-header {
+    z-index: 11;
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4) 0px;
+    background-color: var(--color-background);
+    width: 100%;
+  }
   .active-milestone-split-container {
-    flex-direction: column !important;
-    padding: 90px 16px 80px 16px;
-    overflow-y: auto;
-  }
-  
-  .visual-system-zone {
-    width: 100% !important;
+    position: relative !important;
+    grid-template-columns: 1fr;
     height: auto !important;
-    margin-bottom: 24px;
+    flex: 1;
+    padding: 0px 16px;
+    overflow-y: auto !important;
+    /* Disable the 3D transform-style that prevents normal scroll */
+    transform-style: flat !important;
   }
-  
+
+  /* Info zone becomes full-width, natural height — no inner scroll */
   .info-zone {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
+    justify-content: flex-start !important;
+    display: contents;
   }
-  
+
+  /* Dissolve the clipping scroll wrapper on info zone */
+  .scroll-container-wrapper {
+    overflow: visible !important;
+    height: auto !important;
+    display: contents;
+  }
+
+  /* Remove height cap and inner scroll — phases expand freely */
   .info-zone-inner {
     max-height: none !important;
+    height: auto !important;
     overflow: visible !important;
+    padding-bottom: 0 !important;
+    display: contents;
+  }
+
+  /* Visual system zone — full-width, natural height, shown after info */
+  .visual-system-zone {
+    width: 100% !important;
+    height: 0;
+    margin-top: 24px;
+    padding: 0 !important;
+    overflow: hidden;
+    &.active {
+      height: auto;
+      overflow: visible;
+    }
+  }
+
+  /* Make the contributions card full-width, natural height — no inner scroll */
+  .visual-system-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: unset !important;
+    height: auto !important;
+  }
+
+  .visual-content {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Remove the contributions list scroll on mobile */
+  .visual-content ul,
+  .visual-content .custom-scrollbar {
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+  }
+
+  /* Phase sections expand fully — no overflow clipping */
+  .phase-3-tech-challenges,
+  .phase-4-impact-learnings {
+    max-height: none !important;
+    overflow: hidden !important;
+    height: 0 !important;
+    &.active {
+      height: max-content !important;
+    }
+  }
+
+  /* Hide scroll indicators on mobile (no inner scroll) */
+  .bottom-gradient-overlay,
+  .scroll-indicator {
+    display: none !important;
+  }
+
+  .phase-status-indicator {
+    order: 1;
+  }
+  .phase-1-intro {
+    order: 2;
+  }
+  .visual-system-zone {
+    order: 3;
+  }
+  .phase-3-tech-challenges {
+    order: 4;
+  }
+  .phase-4-impact-learnings {
+    order: 5;
   }
 }
 

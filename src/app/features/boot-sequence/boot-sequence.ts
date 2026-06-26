@@ -139,28 +139,22 @@ export class BootSequence implements OnInit, OnDestroy, SceneLifecycle {
   private pushMessageToStack(text: string): void {
     const current = this.activeMessages();
     
-    // Update opacities for existing messages
-    const updated = current.map((m, idx) => {
-      const age = current.length - idx; // 1 is previous, 2 is older, etc.
-      
-      let opacity = 0.35; // default oldest
-      if (age === 1) opacity = 0.70; // previous
-      else if (age === 2) opacity = 0.50; // older
-      
-      return {
-        ...m,
-        opacity
-      };
-    });
+    // Fade out previous messages completely (non-active messages fade out)
+    const updated = current.map(m => ({
+      ...m,
+      opacity: 0
+    }));
 
-    // Push new message with entry shift offset
+    // Push new message with entry shift offset (slides up from 16px)
     updated.push({
       text,
       opacity: 1.0,
-      transform: 'translate3d(0, 8px, 0)'
+      transform: 'translate3d(0, 16px, 0)'
     });
 
-    this.activeMessages.set(updated);
+    // Keep only the last 2 items in the list (fading out and fading in) to keep DOM clean
+    const cleaned = updated.slice(-2);
+    this.activeMessages.set(cleaned);
 
     // Trigger smooth vertical entry glide in the next frame
     setTimeout(() => {

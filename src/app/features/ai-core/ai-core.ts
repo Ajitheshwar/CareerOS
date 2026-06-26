@@ -4,6 +4,7 @@ import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
+import { BREAKPOINTS } from '../../core/constants/breakpoints';
 
 interface AttributeNode {
   name: string;
@@ -84,10 +85,13 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     return this.active() || (this.progress() > 0 && this.progress() < 1.0);
   });
 
-  // Fade-in opacity and blur filters when entering Scene 5
+  // Fade-in opacity and fade-out when exiting Scene 5 (after 90%)
   public readonly sceneOpacity = computed(() => {
     const p = this.progress();
     if (p < 0.05) return p / 0.05;
+    if (p >= 0.90) {
+      return Math.max(0, 1.0 - (p - 0.90) / 0.10);
+    }
     return 1.0;
   });
 
@@ -97,31 +101,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     return 'none';
   });
 
-  // Final sequence state (triggers at progress >= 0.90)
-  public readonly isFinalActive = computed(() => this.progress() >= 0.90);
-
-  public readonly finalOpacity = computed(() => {
-    const p = this.progress();
-    if (p < 0.90) return 0;
-    const t = (p - 0.90) / 0.06;
-    return Math.min(1.0, Math.max(0.0, t));
-  });
-
-  public readonly finalTranslateY = computed(() => {
-    const p = this.progress();
-    if (p < 0.90) return 20;
-    const t = (p - 0.90) / 0.06;
-    const clampedT = Math.min(1.0, Math.max(0.0, t));
-    return 20 * (1.0 - clampedT);
-  });
-
-  public readonly finalScale = computed(() => {
-    const p = this.progress();
-    if (p < 0.90) return 0.6;
-    const t = (p - 0.90) / 0.06;
-    const clampedT = Math.min(1.0, Math.max(0.0, t));
-    return 0.6 + 0.4 * clampedT;
-  });
+  
 
   // Reactive state signals
   public readonly activeIdx = signal<number>(0);
@@ -134,12 +114,12 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     const size = this.viewportSize();
     const width = size.width;
     const height = size.height;
-    const isMobile = width < 1024;
+    const isMobile = width < BREAKPOINTS.LG;
 
     if (isMobile) {
       return {
         x: width / 2,
-        y: height * 0.35
+        y: height * 0.25 // Centered in the top half
       };
     } else {
       // Desktop: Shifted to the top and left to make room for HUD and visually balance
@@ -181,7 +161,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       name: 'CareerOps Platform',
       purpose: 'What I Built',
       description: 'An AI-powered Career Operating System designed to help job seekers with job discovery, resume optimization, interview preparation, career guidance, and application tracking.',
-      color: '#06b6d4', // Cyan
+      color: '#00f0ff', // Electric Cyan
       strengthNodes: createStrengthNodes([
         'Resume Intelligence',
         'Job Discovery',
@@ -195,7 +175,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       name: 'Multi-Agent Architecture',
       purpose: 'How I Built It',
       description: 'A multi-agent ecosystem where specialized AI agents collaborate through orchestration workflows to solve career-related tasks.',
-      color: '#22c55e', // Green
+      color: '#ffaa00', // Neon Orange
       strengthNodes: createStrengthNodes([
         'Agent Orchestration',
         'Context Sharing',
@@ -209,7 +189,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       name: 'Engineering DNA',
       purpose: 'How I Think',
       description: 'The engineering principles and mindset that guide my approach to software design, problem solving, and product development.',
-      color: '#3b82f6', // Blue
+      color: '#c0c1ff', // Indigo
       strengthNodes: createStrengthNodes([
         'Ownership',
         'Execution',
@@ -224,7 +204,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       name: 'Current Exploration',
       purpose: 'What I Am Learning',
       description: 'The technologies, concepts, and ideas I am actively exploring to expand my capabilities as an engineer and AI builder.',
-      color: '#fbbf24', // Gold
+      color: '#00ffaa', // Neon Mint-Teal
       strengthNodes: createStrengthNodes([
         'Agentic AI',
         'Automation',
@@ -238,7 +218,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       name: 'Recruiter Snapshot',
       purpose: 'Quick Professional Summary',
       description: 'A concise overview of my experience, achievements, technical ownership, and current focus.',
-      color: '#a855f7', // Purple
+      color: '#e2e1ee', // Soft White
       strengthNodes: createStrengthNodes([
         '3+ Years Experience',
         'Enterprise Applications',
@@ -250,41 +230,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     }
   ];
 
-  // Static contact links configurations
-  public readonly contactNodes = [
-    {
-      id: 'github',
-      label: 'GitHub',
-      url: 'https://github.com/Ajitheshwar',
-      color: '#2dd4bf', // Teal
-      dx: -125,
-      dy: 70
-    },
-    {
-      id: 'linkedin',
-      label: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/vadla-ajitheshwar/',
-      color: '#0ea5e9', // Blue
-      dx: -45,
-      dy: 125
-    },
-    {
-      id: 'phone',
-      label: 'Phone',
-      url: 'tel:+919347966409',
-      color: '#fb923c', // Orange/Coral
-      dx: 45,
-      dy: 125
-    },
-    {
-      id: 'email',
-      label: 'Email',
-      url: 'mailto:ajitheshwar1923@gmail.com',
-      color: '#8b5cf6', // Purple
-      dx: 125,
-      dy: 70
-    }
-  ];
+  
 
   // Projects system nodes dynamically in 3D perspective space
   public readonly systemNodes = computed(() => {
@@ -303,11 +249,19 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     const centerX = coords.x;
     const centerY = coords.y;
 
-    const isMobile = width < 1024;
-    const R_base = isMobile ? (width < 480 ? 120 : 160) : 280;
-    const y_offset = isMobile ? 0 : 40;
+    const isSmall = width < BREAKPOINTS.SM;
+    const isMedium = width >= BREAKPOINTS.SM && width < BREAKPOINTS.LG;
+
+    // Responsive Orbit Radius (R_base)
+    const R_base = isSmall ? (width < 480 ? 95 : 110) : (isMedium ? 175 : 280);
+    const y_offset = (isSmall || isMedium) ? 0 : 40;
     const focalLength = 800;
     const beta = 15 * Math.PI / 180; // 15 degree X-tilt
+
+    // Responsive strength node pill properties
+    const strengthScale = isSmall ? 0.55 : (isMedium ? 0.75 : 1.0);
+    const pillOffset = isSmall ? 42 : (isMedium ? 58 : 75);
+    const nodeCenter = isSmall ? 22 : (isMedium ? 27 : 32);
 
     return this.systemsData.map((sys, idx) => {
       const theta_i = (idx * 2 * Math.PI) / count;
@@ -334,6 +288,12 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
       const transform = `translate(-50%, -50%) scale(${scale})`;
       const zIndex = Math.round(500 - z_i);
 
+      const scaledStrengthNodes = sys.strengthNodes.map(str => ({
+        ...str,
+        scaledDx: str.dx * strengthScale,
+        scaledDy: str.dy * strengthScale
+      }));
+
       return {
         ...sys,
         index: idx,
@@ -343,7 +303,10 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
         opacity,
         transform,
         scale,
-        isActive
+        isActive,
+        nodeCenter,
+        pillOffset,
+        scaledStrengthNodes
       };
     });
   });
@@ -505,7 +468,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
 
   private initBgParticles(): void {
     this.bgParticles = [];
-    const colors = ['6, 182, 212', '139, 92, 246', '34, 197, 94', '251, 191, 36'];
+    const colors = ['0, 240, 255', '221, 183, 255', '0, 255, 170', '255, 170, 0'];
 
     for (let i = 0; i < 60; i++) {
       this.bgParticles.push({
@@ -617,22 +580,23 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     this.coreCtx.clearRect(0, 0, size, size);
 
     const activeIdx = this.activeIdx();
-    const isFinal = this.isFinalActive();
+    const isFinal = this.progress() >= 0.90;
     
     // Core color theme matches the focused system
-    let coreColor = '6, 182, 212'; // Default Cyan
-    let coreHex = '#06b6d4';
+    let coreColor = '0, 240, 255'; // Default Electric Cyan
+    let coreHex = '#00f0ff';
     if (activeIdx >= 0 && activeIdx < this.systemsData.length) {
       const data = this.systemsData[activeIdx];
       coreHex = data.color;
       // Convert hex to rgb
-      if (coreHex === '#22c55e') coreColor = '34, 197, 94';
-      else if (coreHex === '#3b82f6') coreColor = '59, 130, 246';
-      else if (coreHex === '#fbbf24') coreColor = '251, 191, 36';
-      else if (coreHex === '#a855f7') coreColor = '168, 85, 247';
+      if (coreHex === '#ffaa00') coreColor = '255, 170, 0';
+      else if (coreHex === '#00ffaa') coreColor = '0, 255, 170';
+      else if (coreHex === '#c0c1ff') coreColor = '192, 193, 255';
+      else if (coreHex === '#ddb7ff') coreColor = '221, 183, 255';
+      else if (coreHex === '#e2e1ee') coreColor = '226, 225, 238';
     } else if (isFinal) {
-      coreColor = '20, 184, 166'; // Golden teal
-      coreHex = '#14b8a6';
+      coreColor = '255, 170, 0'; // Final sequence is AI Orange
+      coreHex = '#ffaa00';
     }
 
     // 1. Draw Expanding Energy Ripples

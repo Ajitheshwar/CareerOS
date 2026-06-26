@@ -78,14 +78,14 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
 
   // Focus window intervals for the 8 milestones
   public readonly focusWindows = [
-    { pStart: 0.05, pEnd: 0.13 }, // Milestone 1
-    { pStart: 0.18, pEnd: 0.26 }, // Milestone 2
-    { pStart: 0.31, pEnd: 0.39 }, // Milestone 3
-    { pStart: 0.44, pEnd: 0.56 }, // Milestone 4 (Hero)
-    { pStart: 0.61, pEnd: 0.69 }, // Milestone 5
-    { pStart: 0.74, pEnd: 0.82 }, // Milestone 6
-    { pStart: 0.86, pEnd: 0.90 }, // Milestone 7
-    { pStart: 0.93, pEnd: 0.97 }  // Milestone 8 (Hero AI / CareerOps)
+    { pStart: 0.01, pEnd: 0.12 }, // Milestone 1
+    { pStart: 0.14, pEnd: 0.24 }, // Milestone 2
+    { pStart: 0.26, pEnd: 0.36 }, // Milestone 3
+    { pStart: 0.38, pEnd: 0.50 }, // Milestone 4 (Hero)
+    { pStart: 0.52, pEnd: 0.62 }, // Milestone 5
+    { pStart: 0.64, pEnd: 0.74 }, // Milestone 6
+    { pStart: 0.76, pEnd: 0.86 }, // Milestone 7
+    { pStart: 0.88, pEnd: 0.98 }  // Milestone 8 (Hero AI / CareerOps)
   ];
 
   // Computes active milestone info, local progress, active phase, and transition metrics
@@ -100,11 +100,11 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         const t_milestone = (p - w.pStart) / (w.pEnd - w.pStart);
         
         let phase = 1;
-        if (t_milestone >= 0.78) {
+        if (t_milestone >= 0.69) {
           phase = 4;
-        } else if (t_milestone >= 0.52) {
+        } else if (t_milestone >= 0.46) {
           phase = 3;
-        } else if (t_milestone >= 0.26) {
+        } else if (t_milestone >= 0.23) {
           phase = 2;
         }
 
@@ -163,7 +163,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       }
       const range = w.pStart - pMin;
       const t = range > 0 ? (p - pMin) / range : 1.0;
-      const clampedT = Math.min(1.0, Math.max(0.0, t));
+      const clampedT = Math.min(0.8, Math.max(0.0, t));
       
       opacity = clampedT;
       scale = 0.85 + 0.15 * clampedT;
@@ -177,19 +177,19 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       }
       const range = pMax - w.pEnd;
       const t = range > 0 ? (p - w.pEnd) / range : 1.0;
-      const clampedT = Math.min(1.0, Math.max(0.0, t));
+      const clampedT = Math.min(0.8, Math.max(0.0, t));
       
-      opacity = 1.0 - clampedT;
-      scale = 1.0 - 0.15 * clampedT;
+      opacity = 0.8 - clampedT;
+      scale = 1.0 - 0.3 * clampedT;
       translateY = -40 * clampedT;
       phase = 4;
     } else {
       const t_milestone = (p - w.pStart) / (w.pEnd - w.pStart);
-      if (t_milestone >= 0.78) {
+      if (t_milestone >= 0.69) {
         phase = 4;
-      } else if (t_milestone >= 0.52) {
+      } else if (t_milestone >= 0.46) {
         phase = 3;
-      } else if (t_milestone >= 0.26) {
+      } else if (t_milestone >= 0.23) {
         phase = 2;
       }
     }
@@ -311,8 +311,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: -240,
       y: -80,
       z: 400,
-      color: '#06b6d4',
-      colorRgb: '6, 182, 212'
+      color: '#e2e1ee',
+      colorRgb: '226, 225, 238'
     },
     {
       id: 2,
@@ -356,8 +356,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: 240,
       y: -80,
       z: 1000,
-      color: '#10b981',
-      colorRgb: '16, 185, 129'
+      color: '#00ffaa',
+      colorRgb: '0, 255, 170'
     },
     {
       id: 3,
@@ -401,8 +401,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: -240,
       y: -80,
       z: 1600,
-      color: '#3b82f6',
-      colorRgb: '59, 130, 246'
+      color: '#00f0ff',
+      colorRgb: '0, 240, 255'
     },
     {
       id: 4,
@@ -487,8 +487,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: -240,
       y: -80,
       z: 3200,
-      color: '#fbbf24',
-      colorRgb: '251, 191, 36'
+      color: '#ffcc00',
+      colorRgb: '255, 204, 0'
     },
     {
       id: 6,
@@ -517,8 +517,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: 240,
       y: -80,
       z: 3800,
-      color: '#a855f7',
-      colorRgb: '168, 85, 247'
+      color: '#ddb7ff',
+      colorRgb: '221, 183, 255'
     },
     {
       id: 7,
@@ -549,8 +549,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: -240,
       y: -80,
       z: 4400,
-      color: '#06b6d4',
-      colorRgb: '6, 182, 212'
+      color: '#4a60ff',
+      colorRgb: '74, 96, 255'
     },
     {
       id: 8,
@@ -596,8 +596,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       x: 300,
       y: -85,
       z: 5200,
-      color: '#14b8a6',
-      colorRgb: '20, 184, 166'
+      color: '#ffaa00',
+      colorRgb: '255, 170, 0'
     }
   ];
 
@@ -691,10 +691,10 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       opacity = prog / 0.05;
     } 
     // Fade out towards Scene 5 (triggers after all stages of CareerOps are fully completed at 0.97 progress)
-    else if (prog > 0.97) {
-      const range = 1.0 - 0.97;
+    else if (prog > 0.98) {
+      const range = 1.0 - 0.98;
       opacity = (1.0 - prog) / range;
-      filter = `blur(${(prog - 0.97) / range * 6}px)`;
+      filter = `blur(${(prog - 0.98) / range * 6}px)`;
     }
 
     return {
@@ -775,7 +775,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
                 container.scrollTo({ top: Math.max(0, scrollOffset), behavior: 'smooth' });
               }
             }
-          }, 750); // Shorter timeout for immediate responsive scrolling as DOM settles
+          }, 850); // Shorter timeout for immediate responsive scrolling as DOM settles
         } else if (currentPhase < this.lastPhase) {
           // User scrolled backward
           this.lastPhase = currentPhase;
@@ -963,7 +963,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
 
     // 2. Draw Corridor wire frames (Perspective receding rings)
     this.ctx.save();
-    this.ctx.strokeStyle = 'rgba(6, 182, 212, 0.035)';
+    this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.035)';
     this.ctx.lineWidth = 0.8;
     
     const ringInterval = 300;
@@ -991,7 +991,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         
         // Faint glow on grid ring
         const fade = Math.max(0, Math.min(1.0, 1.0 - (rZ - camZ) / 2500));
-        this.ctx.strokeStyle = `rgba(6, 182, 212, ${fade * 0.05})`;
+        this.ctx.strokeStyle = `rgba(0, 240, 255, ${fade * 0.05})`;
         this.ctx.stroke();
       }
     }
@@ -1010,7 +1010,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         this.ctx!.beginPath();
         this.ctx!.moveTo(ptStart.x, ptStart.y);
         this.ctx!.lineTo(ptEnd.x, ptEnd.y);
-        this.ctx!.strokeStyle = 'rgba(6, 182, 212, 0.02)';
+        this.ctx!.strokeStyle = 'rgba(0, 240, 255, 0.02)';
         this.ctx!.stroke();
       }
     });
@@ -1108,13 +1108,13 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const r = 40 * ptCenter.scale;
-          this.ctx!.strokeStyle = `rgba(6, 182, 212, ${focusAlpha * 0.3})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.3})`;
           this.ctx!.beginPath();
           this.ctx!.arc(ptCenter.x, ptCenter.y, r, 0, Math.PI * 2);
           this.ctx!.stroke();
 
           // Draw blueprint crosshairs
-          this.ctx!.strokeStyle = `rgba(6, 182, 212, ${focusAlpha * 0.15})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - r * 1.5, ptCenter.y);
           this.ctx!.lineTo(ptCenter.x + r * 1.5, ptCenter.y);
@@ -1131,8 +1131,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           { dx: -35, dy: 90 }, { dx: 35, dy: 90 },
           { dx: 0, dy: 140 }, { dx: -45, dy: 140 }, { dx: 45, dy: 140 }
         ];
-        this.ctx!.strokeStyle = `rgba(16, 185, 129, ${focusAlpha * 0.35})`;
-        this.ctx!.fillStyle = `rgba(16, 185, 129, ${focusAlpha * 0.08})`;
+        this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.35})`;
+        this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.08})`;
 
         const projNodes = nodes.map(n => project3D(m.x + n.dx, m.y + n.dy, m.z)).filter(n => n !== null) as { x: number; y: number; scale: number }[];
         
@@ -1159,13 +1159,13 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         if (ptCenter) {
           const w = 70 * ptCenter.scale;
           const h = 40 * ptCenter.scale;
-          this.ctx!.strokeStyle = `rgba(59, 130, 246, ${focusAlpha * 0.3})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.3})`;
           this.ctx!.strokeRect(ptCenter.x - w / 2, ptCenter.y - h / 2, w, h);
-          this.ctx!.fillStyle = `rgba(59, 130, 246, ${focusAlpha * 0.05})`;
+          this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.05})`;
           this.ctx!.fillRect(ptCenter.x - w / 2, ptCenter.y - h / 2, w, h);
 
           // Flow lines on sides
-          this.ctx!.strokeStyle = `rgba(59, 130, 246, ${focusAlpha * 0.15})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - w, ptCenter.y);
           this.ctx!.lineTo(ptCenter.x + w, ptCenter.y);
@@ -1182,7 +1182,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           
           this.ctx!.beginPath();
           this.ctx!.arc(ptCenter.x, ptCenter.y, mainRad, 0, Math.PI * 2);
-          this.ctx!.strokeStyle = `rgba(239, 68, 68, ${focusAlpha * 0.35})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.35})`;
           this.ctx!.lineWidth = 1.5;
           this.ctx!.stroke();
 
@@ -1196,13 +1196,13 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
             
             this.ctx!.beginPath();
             this.ctx!.arc(mx, my, 4 * ptCenter.scale, 0, Math.PI * 2);
-            this.ctx!.strokeStyle = `rgba(239, 68, 68, ${focusAlpha * 0.8})`;
-            this.ctx!.fillStyle = `rgba(239, 68, 68, ${focusAlpha * 0.25})`;
+            this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.8})`;
+            this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.25})`;
             this.ctx!.fill();
             this.ctx!.stroke();
 
             // lines connecting nodes back to core
-            this.ctx!.strokeStyle = `rgba(239, 68, 68, ${focusAlpha * 0.12})`;
+            this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.12})`;
             this.ctx!.beginPath();
             this.ctx!.moveTo(ptCenter.x, ptCenter.y);
             this.ctx!.lineTo(mx, my);
@@ -1217,8 +1217,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         const ptTop = project3D(m.x, m.y + 80, m.z);
         if (ptBase && ptTop) {
           const w = 24 * ptBase.scale;
-          this.ctx!.strokeStyle = `rgba(251, 191, 36, ${focusAlpha * 0.5})`;
-          this.ctx!.fillStyle = `rgba(251, 191, 36, ${focusAlpha * 0.08})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.5})`;
+          this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.08})`;
 
           // Draw triangular crystal shape
           this.ctx!.beginPath();
@@ -1230,7 +1230,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.stroke();
 
           // Upward light rays
-          this.ctx!.strokeStyle = `rgba(251, 191, 36, ${focusAlpha * 0.25})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.25})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptTop.x, ptTop.y);
           this.ctx!.lineTo(ptTop.x, ptTop.y - 45 * ptTop.scale);
@@ -1249,8 +1249,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           const h = 55 * ptCenter.scale;
           const slide = w * openFactor * 0.95;
 
-          this.ctx!.strokeStyle = `rgba(168, 85, 247, ${focusAlpha * 0.4})`;
-          this.ctx!.fillStyle = `rgba(168, 85, 247, ${focusAlpha * 0.05})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.4})`;
+          this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.05})`;
 
           // Left door panel
           this.ctx!.strokeRect(ptCenter.x - w - slide, ptCenter.y - h / 2, w, h);
@@ -1268,11 +1268,11 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         if (ptCenter) {
           const w = 70 * ptCenter.scale;
           const h = 30 * ptCenter.scale;
-          this.ctx!.strokeStyle = `rgba(6, 182, 212, ${focusAlpha * 0.3})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.3})`;
           this.ctx!.strokeRect(ptCenter.x - w / 2, ptCenter.y - h / 2, w, h);
 
           // Grid rows
-          this.ctx!.strokeStyle = `rgba(6, 182, 212, ${focusAlpha * 0.15})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - w / 2, ptCenter.y);
           this.ctx!.lineTo(ptCenter.x + w / 2, ptCenter.y);
@@ -1294,8 +1294,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           // Core brain node
           this.ctx!.beginPath();
           this.ctx!.arc(ptCenter.x, ptCenter.y, rCore, 0, Math.PI * 2);
-          this.ctx!.strokeStyle = `rgba(20, 184, 166, ${focusAlpha * 0.9})`;
-          this.ctx!.fillStyle = `rgba(20, 184, 166, ${focusAlpha * 0.3})`;
+          this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.9})`;
+          this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.3})`;
           this.ctx!.fill();
           this.ctx!.stroke();
 
@@ -1308,7 +1308,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
             const ay = ptCenter.y + Math.sin(angle) * radius;
 
             // Connect lines
-            this.ctx!.strokeStyle = `rgba(20, 184, 166, ${focusAlpha * 0.25})`;
+            this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.25})`;
             this.ctx!.beginPath();
             this.ctx!.moveTo(ptCenter.x, ptCenter.y);
             this.ctx!.lineTo(ax, ay);
@@ -1317,8 +1317,8 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
             // Draw agent dot
             this.ctx!.beginPath();
             this.ctx!.arc(ax, ay, 4 * ptCenter.scale, 0, Math.PI * 2);
-            this.ctx!.strokeStyle = `rgba(20, 184, 166, ${focusAlpha * 0.75})`;
-            this.ctx!.fillStyle = `rgba(251, 191, 36, ${focusAlpha * 0.25})`;
+            this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.75})`;
+            this.ctx!.fillStyle = `rgba(192, 193, 255, ${focusAlpha * 0.25})`; // Indigo
             this.ctx!.fill();
             this.ctx!.stroke();
           }

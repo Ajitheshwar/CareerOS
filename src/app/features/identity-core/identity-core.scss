@@ -1,3 +1,4 @@
+
 .identity-scene-container {
   transform-style: preserve-3d;
   width: 100vw;
@@ -50,21 +51,48 @@
   will-change: transform, opacity, filter;
   z-index: 5;
   pointer-events: auto;
+
+  @media (max-width: 768px) {
+    span {
+      font-size: 10px !important;
+      margin-bottom: 4px !important;
+      letter-spacing: 0.2em !important;
+    }
+  }
 }
 
 .name-text {
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 60%, rgba(255, 255, 255, 0.45) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-on-surface) 60%, rgba(226, 225, 238, 0.5) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.04);
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+
+  @media (max-width: 768px) {
+    font-size: 32px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.02em !important;
+  }
 }
 
 .role-text {
-  text-shadow: 0 0 15px rgba(6, 182, 212, 0.55), 0 0 5px rgba(6, 182, 212, 0.3);
+  text-shadow: 0 0 15px rgba(0, 240, 255, 0.55), 0 0 5px rgba(0, 240, 255, 0.3);
+
+  @media (max-width: 768px) {
+    font-size: 11px !important;
+    margin-top: 10px !important;
+    letter-spacing: 0.08em !important;
+  }
 }
 
 .pitch-text {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 768px) {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin-top: 14px !important;
+    max-width: 320px !important;
+  }
 }
 
 /* Floating HUD fragments */
@@ -84,7 +112,7 @@
 .hud-connection-line {
   position: absolute;
   height: 1px;
-  background: linear-gradient(90deg, rgba(6, 182, 212, 0.28) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 100%);
+  background: linear-gradient(90deg, rgba(0, 240, 255, 0.28) 0%, rgba(49, 49, 192, 0.05) 50%, transparent 100%);
   transform-origin: left center;
   left: 50%;
   top: 50%;
@@ -95,22 +123,22 @@
 
 /* Semi-transparent bracket panel HUD styling - NOT cards, NOT badges */
 .hud-metadata-frame {
-  background: rgba(5, 8, 20, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  background: rgba(12, 14, 22, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   padding: 6px 14px;
   border-radius: 4px;
   display: flex;
   align-items: center;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-on-surface-variant);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 
   .hud-bracket-left, .hud-bracket-right {
-    font-family: var(--font-mono);
-    color: rgba(6, 182, 212, 0.4);
+    font-family: var(--font-space-mono);
+    color: rgba(0, 240, 255, 0.4);
     transition: color 0.3s;
   }
 
@@ -127,25 +155,25 @@
   }
 
   .hud-text {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.8);
+    font-family: var(--font-space-mono);
+    color: var(--color-on-surface);
     transition: color 0.3s;
   }
 
   &:hover {
-    background: rgba(6, 182, 212, 0.08);
-    border-top-color: rgba(6, 182, 212, 0.25);
-    border-bottom-color: rgba(6, 182, 212, 0.25);
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+    background: rgba(0, 240, 255, 0.08);
+    border-top-color: rgba(0, 240, 255, 0.25);
+    border-bottom-color: rgba(0, 240, 255, 0.25);
+    color: var(--color-primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
     transform: translateY(-1px);
 
     .hud-bracket-left, .hud-bracket-right {
       color: var(--color-accent-cyan);
-      text-shadow: 0 0 4px rgba(6, 182, 212, 0.6);
+      text-shadow: 0 0 4px rgba(0, 240, 255, 0.6);
     }
     .hud-text {
-      color: #ffffff;
+      color: var(--color-primary);
       text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
     }
   }

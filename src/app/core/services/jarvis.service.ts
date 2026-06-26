@@ -33,6 +33,8 @@ export class JarvisService {
       const isBooting = this.sceneEngine.isBooting();
       const bootState = this.sceneEngine.scenesState()['boot'];
       const bootScrollProgress = bootState ? bootState.progress : 0;
+      const aiState = this.sceneEngine.scenesState()['ai'];
+      const aiScrollProgress = aiState ? aiState.progress : 0;
 
       this.stateSignal.update(current => {
         let newPosition: JarvisPosition = current.position;
@@ -42,12 +44,14 @@ export class JarvisService {
         if (isBooting || (activeSceneId === 'boot' && bootScrollProgress < 0.5)) {
           newPosition = 'center';
           newMode = isBooting ? 'booting' : 'scanning';
+        } else if (activeSceneId === 'ai' && aiScrollProgress >= 0.90) {
+          // Final sequence: center JARVIS and show contact details
+          newPosition = 'final';
+          newMode = 'idle';
         } else {
-          // Transition to float-right once we scroll past 50% or enter other scenes
-          if (current.position === 'center') {
-            newPosition = 'float-right';
-            newMode = 'idle';
-          }
+          // Scenes 2-5: position at the bottom-left corner
+          newPosition = 'floating';
+          newMode = 'idle';
         }
 
         return {

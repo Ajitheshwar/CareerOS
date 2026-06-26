@@ -2,7 +2,7 @@ import { SceneId } from './scene.types';
 
 export type JarvisMode = 'booting' | 'idle' | 'scanning' | 'loading' | 'speaking' | 'interacting';
 
-export type JarvisPosition = 'center' | 'float-right' | 'float-bottom';
+export type JarvisPosition = 'center' | 'floating' | 'final';
 
 export interface JarvisMessage {
   text: string;

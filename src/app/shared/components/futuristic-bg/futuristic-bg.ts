@@ -54,10 +54,10 @@ export class FuturisticBg implements OnInit, AfterViewInit, OnDestroy {
   private readonly speedMultiplier = 0.25;
 
   private readonly colorPalette = [
-    '34, 211, 238',  // Cyan (#22d3ee)
-    '139, 92, 246', // Purple (#8b5cf6)
-    '45, 212, 191', // Teal (#2dd4bf)
-    '255, 255, 255' // White
+    '0, 240, 255',   // Electric Cyan (#00f0ff)
+    '192, 193, 255', // Indigo Secondary (#c0c1ff)
+    '221, 183, 255', // Purple Tertiary (#ddb7ff)
+    '255, 255, 255'  // White
   ];
 
   constructor() {
@@ -145,7 +145,7 @@ export class FuturisticBg implements OnInit, AfterViewInit, OnDestroy {
         vy: 0,
         vz: 0,
         size: Math.random() * 1.6 + 1.0,
-        colorRgb: Math.random() > 0.4 ? '34, 211, 238' : '45, 212, 191',
+        colorRgb: Math.random() > 0.4 ? '0, 240, 255' : '0, 219, 233',
         opacity: Math.random() * 0.8 + 0.2,
         type: isLeft ? 'stream-left' : 'stream-right',
         phase: Math.random() * Math.PI * 2,

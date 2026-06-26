@@ -1,91 +1,216 @@
 <div [class]="containerClass()" [style]="jarvisStyle()" class="jarvis-container z-50">
-  <!-- The 3D wrapper that tilts with mouse movement -->
-  <div class="jarvis-wrapper relative flex items-center justify-center transform-style-3d">
+  
+  <!-- Final mode headings -->
+  @if (position() === 'final') {
+    <div class="final-header text-center mb-8 select-none">
+      <h1 class="headline-lg text-accent-cyan font-sora font-extrabold uppercase tracking-widest text-2xl md:text-3xl lg:text-4xl mb-3 animate-fade-in">
+        Let's Build Something Meaningful
+      </h1>
+    </div>
+  }
+
+  <div class="assistant-content-wrapper flex items-end justify-center relative select-none">
     
-    <!-- Outer energy ripple effect (GSAP triggered) -->
-    <div class="jarvis-ripple absolute rounded-full opacity-0 pointer-events-none"></div>
+    <!-- 1. AI Messages (only in floating mode, to the left of the core) -->
+    @if (position() === 'floating' && currentSceneMessage()) {
+      <div class="scene-message-wrapper mr-5 font-space-mono text-[10px] md:text-xs text-on-surface/90 pointer-events-auto transition-opacity duration-300"
+           [class.opacity-0]="isHovered"
+           [class.pointer-events-none]="isHovered">
+        <div class="scene-message-text">{{ currentSceneMessage() }}</div>
+      </div>
+    }
 
-    <!-- Ring 5: Energy Field at translateZ(-60px) -->
-    <div class="jarvis-layer ring-energy-field absolute inset-0 transform-style-3d" [class.active-ring]="progress() >= 80" style="transform: translate3d(0, 0, -60px) scale(1.15)">
-      <svg viewBox="0 0 200 200" class="w-full h-full text-accent-purple opacity-20 filter blur-[0.5px]">
-        <circle cx="100" cy="100" r="86" stroke="currentColor" stroke-width="1.25" fill="none" stroke-dasharray="15 50 30 90" />
-      </svg>
-    </div>
-
-    <!-- Ring 4: Progress Ring at translateZ(-30px) -->
-    <div class="jarvis-layer ring-progress-layer absolute inset-0 transform-style-3d" style="transform: translate3d(0, 0, -30px)">
-      <svg viewBox="0 0 200 200" class="w-full h-full">
-        <!-- Progress track background -->
-        <circle cx="100" cy="100" r="72" stroke="rgba(255,255,255,0.015)" stroke-width="1" fill="none" />
-        <!-- Progress arc fill -->
-        <circle cx="100" cy="100" r="72" stroke="url(#jarvis-prog-grad)" stroke-width="2.5" fill="none"
-                stroke-linecap="round" stroke-dasharray="452.4" [attr.stroke-dashoffset]="progressOffset()" />
-        <linearGradient id="jarvis-prog-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="var(--color-accent-cyan)" />
-          <stop offset="100%" stop-color="var(--color-accent-teal)" />
-        </linearGradient>
-      </svg>
-    </div>
-
-    <!-- Ring 3: Broken Segments (Reacts to milestones) at translateZ(-10px) -->
-    <div class="jarvis-layer ring-broken-layer absolute inset-0 transform-style-3d" [class.active-ring]="progress() >= 60" style="transform: translate3d(0, 0, -10px) scale(0.95)">
-      <svg viewBox="0 0 200 200" class="w-full h-full text-accent-teal opacity-45">
-        <circle cx="100" cy="100" r="58" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="35 15 65 35 15 85" />
-      </svg>
-    </div>
-
-    <!-- Ring 2: Middle Segment (CONTINUOUS ROTATION) at translateZ(15px) -->
-    <div class="jarvis-layer ring-middle-layer spin-constant absolute inset-0 transform-style-3d" [class.active-ring]="progress() >= 40" style="transform: translate3d(0, 0, 15px)">
-      <svg viewBox="0 0 200 200" class="w-full h-full text-accent-cyan opacity-60">
-        <circle cx="100" cy="100" r="46" stroke="currentColor" stroke-width="2.2" fill="none" stroke-dasharray="45 25 80 15 15 35" />
-        <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="0.5" fill="none" stroke-dasharray="2 6" />
-      </svg>
-    </div>
-
-    <!-- Ring 1: Inner Segment (Static, reacts to milestones) at translateZ(40px) -->
-    <div class="jarvis-layer ring-inner-layer absolute inset-0 transform-style-3d" [class.active-ring]="progress() >= 20" style="transform: translate3d(0, 0, 40px)">
-      <svg viewBox="0 0 200 200" class="w-full h-full text-accent-blue opacity-50">
-        <path d="M 80,18 A 82,82 0 0,1 120,18" stroke="currentColor" stroke-width="1.5" fill="none" />
-        <path d="M 20,90 A 82,82 0 0,0 20,110" stroke="currentColor" stroke-width="1.5" fill="none" />
-        <circle cx="100" cy="18" r="1.5" fill="currentColor" />
-        <circle cx="100" cy="100" r="34" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="8 14" />
-      </svg>
-    </div>
-
-    <!-- Layers 2 & 3: Canvas Particle Swarm & Data Fragments at translateZ(5px) -->
-    <canvas class="jarvis-canvas absolute inset-0 w-full h-full pointer-events-none transform-style-3d" style="transform: translate3d(0, 0, 5px)"></canvas>
-
-    <!-- Central Energy Nucleus (Layer 1) at translateZ(65px) -->
-    <div class="jarvis-layer core-layer absolute inset-0 transform-style-3d" style="transform: translate3d(0, 0, 65px)">
-      <svg viewBox="0 0 200 200" class="w-full h-full">
-        <defs>
-          <filter id="nucleus-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur1" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur2" />
-            <feMerge>
-              <feMergeNode in="blur1" />
-              <feMergeNode in="blur2" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <radialGradient id="nucleus-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#ffffff" />
-            <stop offset="25%" stop-color="var(--color-accent-cyan)" />
-            <stop offset="65%" stop-color="var(--color-accent-teal)" stop-opacity="0.65" />
-            <stop offset="100%" stop-color="transparent" stop-opacity="0" />
-          </radialGradient>
-        </defs>
+    <!-- 2. The Core & Contact Nodes Area -->
+    <div class="core-interaction-zone relative" (mouseenter)="onAssistantEnter()" (mouseleave)="onAssistantLeave()">
+      
+      <!-- Contact Nodes & SVG Conduit Lines Overlay -->
+      <div class="contact-nodes-wrapper absolute inset-0 pointer-events-none">
         
-        <!-- Volumetric Outer Aura -->
-        <circle cx="100" cy="100" r="28" fill="url(#nucleus-grad)" opacity="0.3" class="nucleus-aura" />
-        
-        <!-- Intensely Glowing Heart -->
-        <circle cx="100" cy="100" r="13" fill="url(#nucleus-grad)" filter="url(#nucleus-glow)" class="nucleus-heart" />
-        
-        <!-- Micro Core center -->
-        <circle cx="100" cy="100" r="4.5" fill="#ffffff" filter="url(#nucleus-glow)" />
-      </svg>
-    </div>
+        <!-- Conduit Lines SVG -->
+        <svg class="conduit-lines-svg absolute inset-0 pointer-events-none overflow-visible">
+          @for (node of contactNodesList; track node.id) {
+            <g [class]="'conduit-group-' + node.id" style="opacity: 0;">
+              <!-- Dual Rails -->
+              <path [attr.d]="getConduitPath(node.id)" class="conduit-rail rail-1" [style.stroke]="node.color + '33'" />
+              <path [attr.d]="getConduitPath(node.id)" class="conduit-rail rail-2" [style.stroke]="node.color + '33'" />
+              <!-- Glow underlay -->
+              <path [attr.d]="getConduitPath(node.id)" class="conduit-glow" [style.stroke]="node.color + '15'" />
+              <!-- Animated Pulse -->
+              <path [attr.d]="getConduitPath(node.id)" class="conduit-pulse" [style.stroke]="node.color" />
+            </g>
+          }
+        </svg>
 
+        <!-- Contact Node Items -->
+        @for (node of contactNodesList; track node.id) {
+          <a [href]="node.url" 
+             target="_blank"
+             [class]="'contact-node-item node-' + node.id"
+             [class.idle-active]="isIdleActive()"
+             [style.--node-color]="node.color"
+             (mouseenter)="onNodeHover(node.id)"
+             (mouseleave)="onNodeLeave(node.id)"
+             class="absolute flex flex-col items-center justify-center pointer-events-auto font-space-mono text-white transition-all duration-300">
+             
+             <!-- Glowing Icon Wrapper -->
+             <div class="node-icon-wrapper flex items-center justify-center rounded-full z-10 transition-all duration-300"
+                  [style.color]="node.color">
+               <div class="node-icon-mask transition-all duration-300"
+                    [style.--icon-url]="'url(assets/' + node.id + '.svg)'"></div>
+             </div>
+             
+             <!-- Node Label -->
+             <!-- <span class="node-label text-[8px] md:text-[9px] uppercase tracking-widest text-on-surface/50 mt-1.5 font-bold z-10 font-space-mono opacity-0 transition-opacity duration-300">
+               {{ node.label }}
+             </span> -->
+          </a>
+        }
+      </div>
+
+      <!-- JARVIS Core Avatar -->
+      <div class="jarvis-core-avatar" (click)="onCoreClick()">
+        <!-- The 3D wrapper that tilts with mouse movement -->
+        <div class="jarvis-wrapper relative flex items-center justify-center transform-style-3d w-full h-full">
+          
+          <!-- Outer energy ripple effect (GSAP triggered) -->
+          <div class="jarvis-ripple absolute rounded-full opacity-0 pointer-events-none"></div>
+
+          <!-- Ring 5: Outermost Energy Field (active at >= 100%) -->
+          <div class="jarvis-layer ring-energy-field absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 100">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-accent-cyan filter blur-[0.5px]">
+              <circle cx="100" cy="100" r="86" stroke="currentColor" stroke-width="2.2" fill="none" stroke-dasharray="60 30 120 40" />
+              <circle cx="100" cy="100" r="92" stroke="currentColor" stroke-width="0.8" fill="none" stroke-dasharray="10 5" opacity="0.4" />
+              <!-- Glowing outer nodes -->
+              <circle cx="100" cy="8" r="2.2" fill="currentColor" />
+              <circle cx="100" cy="192" r="2.2" fill="currentColor" />
+              <circle cx="8" cy="100" r="2.2" fill="currentColor" />
+              <circle cx="192" cy="100" r="2.2" fill="currentColor" />
+            </svg>
+          </div>
+
+          <!-- Radiating rays (active at >= 100%) -->
+          <div class="jarvis-layer ring-rays absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 100"
+               [class.active-rays]="progress() >= 100">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-accent-cyan opacity-40">
+              <defs>
+                <radialGradient id="ray-grad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.85" />
+                  <stop offset="65%" stop-color="#0066ff" stop-opacity="0.25" />
+                  <stop offset="100%" stop-color="#0066ff" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <!-- 12 radial spoke lines -->
+              @for (angle of [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330]; track angle) {
+                <line x1="100" y1="100" x2="100" y2="0" stroke="url(#ray-grad)" stroke-width="1.8" [attr.transform]="'rotate(' + angle + ' 100 100)'" />
+              }
+            </svg>
+          </div>
+
+          <!-- Ring 4: Progress / High-Density Gauge Ring (active at >= 80%) -->
+          <div class="jarvis-layer ring-progress-layer absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 80">
+            <svg viewBox="0 0 200 200" class="w-full h-full">
+              <!-- Progress track background -->
+              <circle cx="100" cy="100" r="72" stroke="rgba(0, 240, 255, 0.03)" stroke-width="1.2" fill="none" />
+              <!-- Progress arc fill -->
+              <circle cx="100" cy="100" r="72" stroke="url(#jarvis-prog-grad)" stroke-width="2.5" fill="none"
+                      stroke-linecap="round" stroke-dasharray="452.4" [attr.stroke-dashoffset]="progressOffset()" />
+              <!-- Technical gauge ticks -->
+              <circle cx="100" cy="100" r="76" stroke="var(--color-accent-cyan)" stroke-width="1.8" fill="none" stroke-dasharray="1 8" opacity="0.6" />
+              <linearGradient id="jarvis-prog-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00f0ff" />
+                <stop offset="100%" stop-color="#0066ff" />
+              </linearGradient>
+            </svg>
+          </div>
+
+          <!-- Ring 3: Broken Segments (active at >= 60%) -->
+          <div class="jarvis-layer ring-broken-layer absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 60">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-accent-cyan">
+              <circle cx="100" cy="100" r="58" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="35 15 65 35 15 85" />
+              <path d="M 100,36 A 64,64 0 0,1 146,58" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="4 4" opacity="0.6" />
+              <path d="M 100,164 A 64,64 0 0,1 54,142" stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="4 4" opacity="0.6" />
+            </svg>
+          </div>
+
+          <!-- Ring 2: Middle Segment (active at >= 40%) -->
+          <div class="jarvis-layer ring-middle-layer spin-constant absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 40">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-accent-cyan">
+              <circle cx="100" cy="100" r="46" stroke="currentColor" stroke-width="2.2" fill="none" stroke-dasharray="45 25 80 15 15 35" />
+              <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="0.8" fill="none" stroke-dasharray="2 6" opacity="0.6" />
+            </svg>
+          </div>
+
+          <!-- Ring 1: Inner Segment (active at >= 20%) -->
+          <div class="jarvis-layer ring-inner-layer absolute inset-0 transform-style-3d" 
+               [class.active-ring]="progress() >= 20">
+            <svg viewBox="0 0 200 200" class="w-full h-full text-accent-blue">
+              <circle cx="100" cy="100" r="34" stroke="currentColor" stroke-width="1.5" fill="none" stroke-dasharray="8 14" />
+              <path d="M 80,18 A 82,82 0 0,1 120,18" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5" />
+              <path d="M 20,90 A 82,82 0 0,0 20,110" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5" />
+              <circle cx="100" cy="18" r="1.5" fill="currentColor" />
+              <!-- Tech crosshair ticks -->
+              <line x1="100" y1="62" x2="100" y2="68" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+              <line x1="100" y1="132" x2="100" y2="138" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+              <line x1="62" y1="100" x2="68" y2="100" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+              <line x1="132" y1="100" x2="138" y2="100" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+            </svg>
+          </div>
+
+          <!-- Layers 2 & 3: Canvas Particle Swarm & Data Fragments -->
+          <canvas class="jarvis-canvas absolute inset-0 w-full h-full pointer-events-none transform-style-3d"></canvas>
+
+          <!-- Central Energy Nucleus (Layer 1) -->
+          <div class="jarvis-layer core-layer absolute inset-0 transform-style-3d" 
+               [class]="progressLevelClass()">
+            <svg viewBox="0 0 200 200" class="w-full h-full">
+              <defs>
+                <filter id="nucleus-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur1" />
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur2" />
+                  <feMerge>
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <radialGradient id="nucleus-grad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="25%" stop-color="#00f0ff" />
+                  <stop offset="65%" stop-color="#0055ff" stop-opacity="0.65" />
+                  <stop offset="100%" stop-color="#0055ff" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              
+              <!-- Volumetric Outer Aura -->
+              <circle cx="100" cy="100" r="28" fill="url(#nucleus-grad)" opacity="0.3" class="nucleus-aura" />
+              
+              <!-- Intensely Glowing Heart -->
+              <circle cx="100" cy="100" r="13" fill="url(#nucleus-grad)" filter="url(#nucleus-glow)" class="nucleus-heart" />
+              
+              <!-- Micro Core center -->
+              <circle cx="100" cy="100" r="4.5" fill="#ffffff" filter="url(#nucleus-glow)" />
+            </svg>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </div>
+
+  <!-- Final mode bottom text -->
+  @if (position() === 'final') {
+    <div class="final-footer text-center mt-8 select-none animate-fade-in">
+      <p class="font-geist text-xs md:text-sm text-on-surface/60 max-w-md mx-auto leading-relaxed px-4">
+        Thank you for exploring CareerOS.<br class="hidden sm:inline">
+        Whether you're a recruiter, engineer, or collaborator, I'd love to connect.
+      </p>
+    </div>
+  }
+
 </div>

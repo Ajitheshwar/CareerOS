@@ -25,9 +25,9 @@ export class SceneEngineService {
   // Configurable heights per scene (mixing relative and absolute pixel heights)
   private readonly sceneHeights: Record<SceneId, (viewportHeight: number) => number> = {
     boot: (vh) => vh * 0.5,
-    identity: (vh) => vh,
+    identity: (vh) => vh * 0.75,
     skills: (vh) => 1250, // 5 stages * 250px = 1250px
-    experience: (vh) => 5000,
+    experience: (vh) => 6400,
     ai: (vh) => vh
   };
 

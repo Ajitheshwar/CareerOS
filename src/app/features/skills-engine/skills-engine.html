@@ -11,7 +11,7 @@
       <!-- Global Engine Room HUD Overlays (for immersive atmosphere) -->
       <div class="hud-top-header absolute top-8 left-8 right-8 flex justify-between items-start pointer-events-auto">
         <div class="hud-left-panel flex flex-col font-mono">
-          <div class="flex items-center space-x-2 text-accent-cyan">
+          <div class="flex items-center space-x-2 text-primary-container">
             <span class="pulse-indicator"></span>
             <span class="text-xs uppercase tracking-[0.25em] font-bold">Engine Room // System diagnostics</span>
           </div>
@@ -22,13 +22,13 @@
         
         <div class="hud-right-panel font-mono text-[10px] text-white/50 text-right hidden md:block">
           <div>REACTOR CODE: CORE_OS_V3.8</div>
-          <div class="text-accent-purple mt-0.5">STATUS: {{ systemStatus() }}</div>
+          <div class="text-tertiary-fixed-dim mt-0.5">STATUS: {{ systemStatus() }}</div>
           <div>POWER LEVEL: {{ (progress() * 100).toFixed(0) }}% / ACTIVE</div>
         </div>
       </div>
 
       <!-- Left Diagnostic Logs Sidebar (Immersive Engine feeling) -->
-      <div class="hud-left-sidebar absolute left-8 top-32 w-48 font-mono text-[9px] text-white/40 space-y-4 hidden lg:block pointer-events-none">
+      <div class="hud-left-sidebar absolute left-8 top-32 w-48 font-mono text-[9px] text-white/40 space-y-4 block pointer-events-none">
         <div class="sidebar-block border-l border-white/10 pl-3 py-1">
           <div class="text-white/60 tracking-wider font-bold">REACTOR SYST:</div>
           <div>TEMP: {{ reactorTemp() }}K</div>
@@ -44,7 +44,7 @@
       </div>
 
       <!-- Right Achievement / Context Panel for active Stage -->
-      <div class="hud-right-sidebar absolute right-8 top-32 w-52 font-mono text-[9px] text-white/40 space-y-4 hidden lg:block pointer-events-auto">
+      <div class="hud-right-sidebar absolute right-8 top-32 w-52 font-mono text-[9px] text-white/40 space-y-4 block pointer-events-auto">
         @if (sidebarBlocks[activeStageIndex()]; as block) {
           <div [class]="'sidebar-block border-r pr-3 py-1 text-right ' + block.borderColorClass">
             <div [class]="'tracking-wider font-bold text-[10px] ' + block.textColorClass">
@@ -81,7 +81,7 @@
             <div class="flex items-center space-x-2">
               <!-- <span class="skill-bracket-left">[</span> -->
               <span class="skill-dot" [style.background-color]="node.color" [style.color]="node.color"></span>
-              <span class="skill-text font-mono text-[9px] md:text-[12px] lg:text-[16px] uppercase tracking-[0.16em]">{{ node.name }}</span>
+              <span class="skill-text font-mono text-[12px] md:text-[14px] lg:text-[16px] uppercase tracking-[0.16em]">{{ node.name }}</span>
               <!-- <span class="skill-bracket-right">]</span> -->
             </div>
 
@@ -97,21 +97,21 @@
       }
 
       <!-- Bottom Navigation / Scene Scroll progress status bar -->
-      <div class="hud-bottom-bar absolute bottom-8 left-8 right-8 flex items-center space-x-6 pointer-events-auto font-mono text-[9px] text-white/30">
+      <div class="hidden lg:flex hud-bottom-bar absolute bottom-8 left-8 right-8 items-center space-x-6 pointer-events-auto font-mono text-[9px] text-white/30">
         <div class="flex-none text-white/50 font-bold uppercase tracking-widest text-[10px]">SCENE_03 // CORE_ENGINE</div>
         <div class="flex-1 h-[1px] bg-white/10 relative overflow-hidden">
-          <div class="absolute top-0 bottom-0 left-0 bg-accent-cyan transition-all duration-300" [style.width.%]="progress() * 100"></div>
+          <div class="absolute top-0 bottom-0 left-0 bg-primary-container transition-all duration-300" [style.width.%]="progress() * 100"></div>
         </div>
         <div class="flex-none flex items-center space-x-4">
-          <span [class.text-accent-cyan]="activeStageIndex() === 0" (click)="onStageClick(0)" class="cursor-pointer transition-colors duration-300">01_FRONTEND</span>
+          <span [class.text-primary-container]="activeStageIndex() === 0" (click)="onStageClick(0)" class="cursor-pointer transition-colors duration-300">01_FRONTEND</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-green]="activeStageIndex() === 1" (click)="onStageClick(1)" class="cursor-pointer transition-colors duration-300">02_BACKEND</span>
+          <span [class.text-accent-teal]="activeStageIndex() === 1" (click)="onStageClick(1)" class="cursor-pointer transition-colors duration-300">02_BACKEND</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-blue]="activeStageIndex() === 2" (click)="onStageClick(2)" class="cursor-pointer transition-colors duration-300">03_DATA</span>
+          <span [class.text-secondary]="activeStageIndex() === 2" (click)="onStageClick(2)" class="cursor-pointer transition-colors duration-300">03_DATA</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-yellow]="activeStageIndex() === 3" (click)="onStageClick(3)" class="cursor-pointer transition-colors duration-300">04_AI</span>
+          <span [class.text-accent-orange]="activeStageIndex() === 3" (click)="onStageClick(3)" class="cursor-pointer transition-colors duration-300">04_AI</span>
           <span class="text-white/10">|</span>
-          <span [class.text-accent-purple]="activeStageIndex() === 4" (click)="onStageClick(4)" class="cursor-pointer transition-colors duration-300">05_FOUNDATION</span>
+          <span [class.text-primary]="activeStageIndex() === 4" (click)="onStageClick(4)" class="cursor-pointer transition-colors duration-300">05_FOUNDATION</span>
         </div>
       </div>
 

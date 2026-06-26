@@ -1,8 +1,9 @@
-import { Component, ElementRef, OnInit, AfterViewInit, OnDestroy, inject, computed, effect } from '@angular/core';
+import { Component, ElementRef, OnInit, AfterViewInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { JarvisService } from '../../../core/services/jarvis.service';
 import { SceneEngineService } from '../../../core/services/scene-engine.service';
 import { AnimationService } from '../../../core/services/animation.service';
 import { JarvisPosition } from '../../../core/types/jarvis.types';
+import { gsap } from 'gsap';
 
 interface Particle3D {
   r: number;       // base sphere radius
@@ -37,6 +38,18 @@ interface Fragment3D {
   z: number;
 }
 
+interface Spark3D {
+  r: number;        // distance from center
+  theta: number;    // angle in XY plane
+  phi: number;      // angle in Z plane
+  speed: number;    // radial speed outwards
+  length: number;   // tail length
+  width: number;    // spark line thickness
+  life: number;     // current life ticks
+  maxLife: number;  // max life ticks
+  colorRgb: string;
+}
+
 type DepthSortedObject = 
   | { type: 'particle'; obj: Particle3D; z: number }
   | { type: 'fragment'; obj: Fragment3D; z: number };
@@ -59,8 +72,89 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
   public readonly position = this.jarvisService.position;
   public readonly progress = this.jarvisService.progress;
 
+  public readonly currentSceneMessage = signal<string>('');
+  private messageIndex = 0;
+  private messageTimer: any = null;
+
+  private idleResumeTimeout: any = null;
+  public isHovered = false;
+  public readonly isIdleActive = signal<boolean>(false);
+
   private previousPosition: JarvisPosition = 'center';
   private isInitialized = false;
+
+  private readonly sceneMessages: Record<string, string[]> = {
+    boot: [
+      'Welcome to CareerOS.',
+      'Initializing the experience...',
+      'Loading my engineering profile...',
+      'Connecting all systems...',
+      'Environment is ready.',
+      'Let\'s begin the journey.'
+    ],
+
+    identity: [
+      'Welcome to my Identity Core.',
+      'Discover who I am.',
+      'Beyond titles and resumes.',
+      'Explore what drives me.',
+      'Every fragment tells a story.',
+      'This is where it all begins.'
+    ],
+
+    skills: [
+      'Entering my Skills Engine.',
+      'Explore my technical expertise.',
+      'Each chamber is a skill domain.',
+      'Hover to inspect technologies.',
+      'Every skill solved real problems.',
+      'Keep exploring.'
+    ],
+
+    experience: [
+      'Welcome to my Engineering Journey.',
+      'Follow my career timeline.',
+      'Every milestone shaped me.',
+      'Explore projects and achievements.',
+      'See the impact behind my work.',
+      'The journey continues.'
+    ],
+
+    ai: [
+      'Welcome to my AI Core.',
+      'This is how I think.',
+      'Explore my engineering principles.',
+      'Discover CareerOps.',
+      'See what I\'m building next.',
+      'Let\'s connect.'
+    ]
+  };
+  public readonly contactNodesList = [
+    {
+      id: 'github',
+      label: 'GitHub',
+      url: 'https://github.com/Ajitheshwar',
+      color: '#00f0ff'
+    },
+    {
+      id: 'linkedin',
+      label: 'LinkedIn',
+      url: 'https://www.linkedin.com/in/vadla-ajitheshwar/',
+      color: '#c0c1ff'
+    },
+    {
+      id: 'phone',
+      label: 'Phone',
+      url: 'tel:+919347966409',
+      color: '#ffaa00'
+    },
+    {
+      id: 'email',
+      label: 'Email',
+      url: 'mailto:ajitheshwar1923@gmail.com',
+      color: '#ddb7ff'
+    }
+  ];
 
   // Compute offset for the progress circle (circumference = 2 * Math.PI * 72px ≈ 452.4)
   public readonly progressOffset = computed(() => {
@@ -103,19 +197,30 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     return `jarvis-${pos} ${activeMode}`;
   });
 
+  public readonly progressLevelClass = computed(() => {
+    const prog = this.progress();
+    if (prog >= 100) return 'level-5';
+    if (prog >= 80) return 'level-4';
+    if (prog >= 60) return 'level-3';
+    if (prog >= 40) return 'level-2';
+    if (prog >= 20) return 'level-1';
+    return 'level-0';
+  });
+
   // Canvas Simulation variables
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
   private animationFrameId: number | null = null;
   private particles: Particle3D[] = [];
   private fragments: Fragment3D[] = [];
+  private sparks: Spark3D[] = [];
   private renderTime = 0;
 
   // Particle color channels matching accent theme
   private readonly colorPalette = [
-    '6, 182, 212',  // Electric Cyan
-    '20, 184, 166', // Subtle Teal
-    '139, 92, 246', // Soft Violet
+    '0, 240, 255',  // Electric Cyan
+    '0, 85, 255',   // Vibrant Blue
+    '170, 225, 255',// Soft Light Blue
     '255, 255, 255' // Soft White
   ];
 
@@ -143,6 +248,34 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const prog = this.progress();
       this.triggerReaction(prog);
+    });
+
+    // Watch active scene to rotate scene messages
+    effect(() => {
+      this.updateSceneMessages();
+    });
+
+    // Watch position to trigger idle sequence or final reveal
+    effect(() => {
+      const pos = this.position();
+      
+      // Reset timer and timeline states
+      this.isIdleActive.set(false);
+      this.stopIdleAnimation();
+      if (this.idleResumeTimeout) {
+        clearTimeout(this.idleResumeTimeout);
+        this.idleResumeTimeout = null;
+      }
+
+      if (pos === 'floating') {
+        this.idleResumeTimeout = setTimeout(() => {
+          this.isIdleActive.set(true);
+        }, 1000);
+      } else if (pos === 'final') {
+        this.triggerFinalReveal();
+      } else {
+        this.resetNodesToCenter();
+      }
     });
   }
 
@@ -219,6 +352,7 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
+    this.sparks = [];
     this.startAnimation();
   }
 
@@ -376,6 +510,59 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
         this.ctx!.restore();
       }
     });
+
+    // 5. Spawn and Draw 3D Energy Sparks at 100% progress
+    if (bootProgress >= 100 && this.sparks.length < 30 && Math.random() > 0.45) {
+      this.sparks.push({
+        r: Math.random() * 15 + 10,
+        theta: Math.random() * Math.PI * 2,
+        phi: Math.random() * Math.PI,
+        speed: Math.random() * 5 + 3.5,
+        length: Math.random() * 30 + 15,
+        width: Math.random() * 1.4 + 0.6,
+        life: 0,
+        maxLife: Math.random() * 20 + 12,
+        colorRgb: Math.random() > 0.35 ? '6, 182, 212' : '255, 255, 255'
+      });
+    }
+
+    this.sparks = this.sparks.filter(s => {
+      s.r += s.speed;
+      s.life += 1;
+      return s.life < s.maxLife;
+    });
+
+    this.sparks.forEach(s => {
+      const currentR = s.r;
+      const startX = currentR * Math.sin(s.phi) * Math.cos(s.theta);
+      const startY = currentR * Math.cos(s.phi);
+      const startZ = currentR * Math.sin(s.phi) * Math.sin(s.theta);
+
+      const endR = Math.max(0, currentR - s.length);
+      const endX = endR * Math.sin(s.phi) * Math.cos(s.theta);
+      const endY = endR * Math.cos(s.phi);
+      const endZ = endR * Math.sin(s.phi) * Math.sin(s.theta);
+
+      const scaleStart = focalLength / (focalLength + startZ + 100);
+      const scaleEnd = focalLength / (focalLength + endZ + 100);
+
+      const scrStartX = centerX + startX * scaleStart;
+      const scrStartY = centerY + startY * scaleStart;
+      const scrEndX = centerX + endX * scaleEnd;
+      const scrEndY = centerY + endY * scaleEnd;
+
+      // Don't render out-of-bounds coords
+      if (scrStartX < 0 || scrStartX > width || scrStartY < 0 || scrStartY > height) return;
+
+      const opacity = (1 - s.life / s.maxLife) * 0.9;
+      this.ctx!.beginPath();
+      this.ctx!.moveTo(scrStartX, scrStartY);
+      this.ctx!.lineTo(scrEndX, scrEndY);
+      this.ctx!.strokeStyle = `rgba(${s.colorRgb}, ${opacity})`;
+      this.ctx!.lineWidth = s.width * scaleStart;
+      this.ctx!.lineCap = 'round';
+      this.ctx!.stroke();
+    });
   }
 
   /**
@@ -400,33 +587,53 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
   };
 
   /**
-   * Captures mouse movements to tilt the JARVIS wrapper, creating a 3D parallax depth effect
+   * Captures mouse movements to tilt the central core and particle canvas, creating a 3D parallax depth effect
    */
   private readonly onMouseMove = (e: MouseEvent): void => {
-    const wrapper = this.el.nativeElement.querySelector('.jarvis-wrapper');
-    if (!wrapper) return;
+    const core = this.el.nativeElement.querySelector('.core-layer');
+    const canvas = this.el.nativeElement.querySelector('.jarvis-canvas');
+    if (!core) return;
 
     const normX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
     const normY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
 
-    const rotateX = -normY * 4.5;
-    const rotateY = normX * 4.5;
+    const rotateX = -normY * 6;
+    const rotateY = normX * 6;
 
-    this.animationService.to(wrapper, {
+    this.animationService.to(core, {
       rotateX: rotateX,
       rotateY: rotateY,
       duration: 0.8,
       ease: 'power2.out'
     });
+
+    if (canvas) {
+      this.animationService.to(canvas, {
+        rotateX: rotateX * 0.7,
+        rotateY: rotateY * 0.7,
+        duration: 0.8,
+        ease: 'power2.out'
+      });
+    }
   };
 
   /**
    * Returns tilt to origin when cursor exits the viewport
    */
   private readonly onMouseLeave = (): void => {
-    const wrapper = this.el.nativeElement.querySelector('.jarvis-wrapper');
-    if (wrapper) {
-      this.animationService.to(wrapper, {
+    const core = this.el.nativeElement.querySelector('.core-layer');
+    const canvas = this.el.nativeElement.querySelector('.jarvis-canvas');
+    
+    if (core) {
+      this.animationService.to(core, {
+        rotateX: 0,
+        rotateY: 0,
+        duration: 1.0,
+        ease: 'power2.out'
+      });
+    }
+    if (canvas) {
+      this.animationService.to(canvas, {
         rotateX: 0,
         rotateY: 0,
         duration: 1.0,
@@ -560,38 +767,442 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
           this.animationService.to(broken, {
             rotation: '-=360',
             duration: 2.4,
-            ease: 'power3.inOut'
+            ease: 'power3.inOut',
+            transformOrigin: 'center'
           });
         }
         if (inner) {
           this.animationService.to(inner, {
             rotation: '+=360',
             duration: 2.4,
-            ease: 'power3.inOut'
+            ease: 'power3.inOut',
+            transformOrigin: 'center'
           });
         }
         if (middle) {
           this.animationService.to(middle, {
             rotation: '+=720', // Spin the continuous ring twice as fast
             duration: 2.4,
-            ease: 'power3.inOut'
+            ease: 'power3.inOut',
+            transformOrigin: 'center'
           });
         }
         if (energyField) {
           this.animationService.to(energyField, {
             rotation: '-=360',
             duration: 2.4,
-            ease: 'power3.inOut'
+            ease: 'power3.inOut',
+            transformOrigin: 'center'
           });
         }
         if (progressRing) {
           this.animationService.to(progressRing, {
             rotation: '+=360',
             duration: 2.4,
-            ease: 'power3.inOut'
+            ease: 'power3.inOut',
+            transformOrigin: 'center'
           });
         }
         break;
+    }
+  }
+
+  /**
+   * Scene Messages rotation logic
+   */
+  private updateSceneMessages(): void {
+    if (!this.animationService.getIsBrowser()) return;
+    
+    const activeScene = this.sceneEngine.activeSceneId();
+    const messages = this.sceneMessages[activeScene] || [];
+    
+    // Clear message rotation timer
+    if (this.messageTimer) {
+      clearInterval(this.messageTimer);
+      this.messageTimer = null;
+    }
+
+    if (messages.length === 0) {
+      this.currentSceneMessage.set('');
+      return;
+    }
+
+    this.messageIndex = 0;
+    this.currentSceneMessage.set(messages[0]);
+    
+    // Reset visual position of text
+    const textEl = this.el.nativeElement.querySelector('.scene-message-text');
+    if (textEl) {
+      gsap.killTweensOf(textEl);
+      gsap.set(textEl, { x: 0, y: 0, opacity: 1 });
+    }
+    
+    // Rotate messages
+    this.messageTimer = setInterval(() => {
+      this.rotateMessage(messages);
+    }, 3000);
+  }
+
+  private rotateMessage(messages: string[]): void {
+    if (messages.length <= 1) return;
+
+    const textEl = this.el.nativeElement.querySelector('.scene-message-text');
+    if (!textEl) return;
+
+    this.messageIndex = (this.messageIndex + 1) % messages.length;
+    const nextMsg = messages[this.messageIndex];
+
+    // Timeline for transition: 350-450ms total
+    const tl = this.animationService.createTimeline();
+    if (!tl) return;
+    
+    // 1. Current message: slide up (-10px) and fade out (200ms)
+    tl.to(textEl, {
+      y: -10,
+      opacity: 0,
+      duration: 0.2,
+      onComplete: () => {
+        this.currentSceneMessage.set(nextMsg);
+        // Move to start position (slide in from left: x: -15px, y: 0)
+        gsap.set(textEl, { x: -15, y: 0 });
+      }
+    });
+
+    // 2. Next message: slide in from left (x: 0) and fade in (220ms)
+    tl.to(textEl, {
+      x: 0,
+      opacity: 1,
+      duration: 0.22,
+      ease: 'power2.out'
+    });
+  }
+
+  /**
+   * Contact Nodes animation helpers
+   */
+  public getConduitPath(id: string): string {
+    const pos = this.position();
+    const isFinal = pos === 'final';
+    
+    if (isFinal) {
+      // Final Mode (Nodes diagonal at 45, 135, 225, 315 degrees)
+      if (id === 'github') return 'M 0 0 L 92 -92';
+      if (id === 'linkedin') return 'M 0 0 L -92 -92';
+      if (id === 'phone') return 'M 0 0 L -92 92';
+      if (id === 'email') return 'M 0 0 L 92 92';
+    } else {
+      // Floating Mode (Nodes above JARVIS)
+      if (id === 'github') return 'M 0 0 L 0 -115';
+      if (id === 'linkedin') return 'M 0 0 L 0 -40 Q 0 -55 -15 -62 L -62 -96';
+      if (id === 'phone') return 'M 0 0 L 0 -15 Q 0 -30 -15 -35 L -105 -46';
+      if (id === 'email') return 'M 0 0 L -115 0';
+    }
+    return '';
+  }
+
+  private stopIdleAnimation(): void {
+  }
+
+  private resetNodesToCenter(): void {
+    if (!this.animationService.getIsBrowser()) return;
+
+    const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
+    nodes.forEach(id => {
+      const element = this.el.nativeElement.querySelector(`.node-${id}`);
+      const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
+      const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
+      
+      if (element) {
+        gsap.killTweensOf(element);
+        gsap.set(element, { x: 0, y: 0, scale: 0, opacity: 0, filter: 'none' });
+      }
+      if (label) {
+        gsap.killTweensOf(label);
+        gsap.set(label, { opacity: 0 });
+      }
+      if (rail) {
+        gsap.killTweensOf(rail);
+        gsap.set(rail, { opacity: 0 });
+      }
+    });
+  }
+
+  /**
+   * Hover events
+   */
+  public onAssistantEnter(): void {
+    const pos = this.position();
+    if (pos !== 'floating') return;
+
+    this.isHovered = true;
+    this.isIdleActive.set(false); // Stop CSS idle jump animation immediately
+
+    if (this.idleResumeTimeout) {
+      clearTimeout(this.idleResumeTimeout);
+      this.idleResumeTimeout = null;
+    }
+
+    // Trigger core pulse
+    this.triggerCorePulse();
+
+    const hoverCoords = {
+      github: { x: 0, y: -115 },      // Top
+      linkedin: { x: -62, y: -96 },   // Top-Left (~33 degrees)
+      phone: { x: -105, y: -46 },    // Top-Left (~66 degrees)
+      email: { x: -115, y: 0 }        // Left
+    };
+
+    const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
+    nodes.forEach((id, idx) => {
+      const element = this.el.nativeElement.querySelector(`.node-${id}`);
+      const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
+      const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
+      const coords = hoverCoords[id];
+
+      if (!element) return;
+
+      gsap.killTweensOf(element);
+      if (label) gsap.killTweensOf(label);
+      if (rail) gsap.killTweensOf(rail);
+
+      // Animate line grow
+      if (rail) {
+        gsap.to(rail, {
+          opacity: 0.6,
+          duration: 0.4,
+          delay: idx * 0.08
+        });
+      }
+
+      // Animate node position
+      gsap.to(element, {
+        x: coords.x,
+        y: coords.y,
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'back.out(1.5)',
+        delay: idx * 0.08
+      });
+
+      // Fade in label
+      if (label) {
+        gsap.to(label, {
+          opacity: 1,
+          duration: 0.2,
+          delay: idx * 0.08 + 0.4
+        });
+      }
+    });
+  }
+
+  public onAssistantLeave(): void {
+    const pos = this.position();
+    if (pos !== 'floating') return;
+
+    this.isHovered = false;
+
+    const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
+    nodes.forEach((id, idx) => {
+      const element = this.el.nativeElement.querySelector(`.node-${id}`);
+      const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
+      const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
+
+      if (!element) return;
+
+      gsap.killTweensOf(element);
+      if (label) gsap.killTweensOf(label);
+      if (rail) gsap.killTweensOf(rail);
+
+      // Fade out label first
+      if (label) {
+        gsap.to(label, {
+          opacity: 0,
+          duration: 0.15
+        });
+      }
+
+      // Retract node back to center
+      gsap.to(element, {
+        x: 0,
+        y: 0,
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.in',
+        delay: 0.1
+      });
+
+      // Retract lines
+      if (rail) {
+        gsap.to(rail, {
+          opacity: 0,
+          duration: 0.4,
+          delay: 0.1
+        });
+      }
+    });
+
+    // Resume idle animation after 2-second delay
+    this.idleResumeTimeout = setTimeout(() => {
+      this.isIdleActive.set(true);
+    }, 2000);
+  }
+
+  /**
+   * Final Mode Reveal Sequence
+   */
+  private triggerFinalReveal(): void {
+    if (!this.animationService.getIsBrowser()) return;
+
+    this.stopIdleAnimation();
+    this.resetNodesToCenter();
+
+    // Wait 500ms before deploying nodes
+    const finalCoords = {
+      github: { x: 92, y: -92 },      // 45 degrees
+      linkedin: { x: -92, y: -92 },   // 135 degrees
+      phone: { x: -92, y: 92 },       // 225 degrees
+      email: { x: 92, y: 92 }         // 315 degrees
+    };
+
+    const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
+    nodes.forEach((id, idx) => {
+      const element = this.el.nativeElement.querySelector(`.node-${id}`);
+      const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
+      const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
+      const coords = finalCoords[id];
+
+      if (!element) return;
+
+      gsap.killTweensOf(element);
+      if (label) gsap.killTweensOf(label);
+      if (rail) gsap.killTweensOf(rail);
+
+      // Deploy line
+      if (rail) {
+        gsap.to(rail, {
+          opacity: 0.6,
+          duration: 0.5,
+          delay: 0.5 + idx * 0.15
+        });
+      }
+
+      // Deploy node with bounce
+      gsap.to(element, {
+        x: coords.x,
+        y: coords.y,
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'back.out(1.5)',
+        delay: 0.5 + idx * 0.15,
+        onComplete: () => {
+          // Glow pulse
+          gsap.to(element, {
+            filter: 'drop-shadow(0 0 15px rgba(0, 240, 255, 0.8)) brightness(1.25)',
+            duration: 0.35,
+            yoyo: true,
+            repeat: 1
+          });
+        }
+      });
+
+      // Show label
+      if (label) {
+        gsap.to(label, {
+          opacity: 1,
+          duration: 0.25,
+          delay: 0.5 + idx * 0.15 + 0.4
+        });
+      }
+    });
+  }
+
+  /**
+   * Node Specific Hover Animation
+   */
+  public onNodeHover(id: string): void {
+    const element = this.el.nativeElement.querySelector(`.node-${id}`);
+    const pulse = this.el.nativeElement.querySelector(`.conduit-group-${id} .conduit-pulse`);
+
+    if (element) {
+      gsap.to(element, {
+        scale: 1.22,
+        filter: 'drop-shadow(0 0 20px rgba(0, 240, 255, 0.95)) brightness(1.3)',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+    }
+
+    if (pulse) {
+      gsap.to(pulse, {
+        strokeWidth: 3,
+        stroke: '#ffffff',
+        duration: 0.15,
+        yoyo: true,
+        repeat: 1
+      });
+    }
+
+    // Trigger core pulse
+    this.triggerCorePulse();
+  }
+
+  public onNodeLeave(id: string): void {
+    const element = this.el.nativeElement.querySelector(`.node-${id}`);
+    if (element) {
+      gsap.to(element, {
+        scale: 1.0,
+        filter: 'none',
+        duration: 0.25,
+        ease: 'power2.out'
+      });
+    }
+  }
+
+  /**
+   * Interaction pulses
+   */
+  public onCoreClick(): void {
+    // Click: Emit quick ripple & pulse
+    this.triggerCorePulse();
+    
+    // Quick core glow reaction
+    const heart = this.el.nativeElement.querySelector('.nucleus-heart');
+    if (heart) {
+      gsap.to(heart, {
+        scale: 1.5,
+        duration: 0.15,
+        yoyo: true,
+        repeat: 1
+      });
+    }
+  }
+
+  private triggerCorePulse(): void {
+    const aura = this.el.nativeElement.querySelector('.nucleus-aura');
+    if (aura) {
+      gsap.to(aura, {
+        scale: 1.35,
+        opacity: 0.9,
+        duration: 0.2,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.out'
+      });
+    }
+    
+    const ripple = this.el.nativeElement.querySelector('.jarvis-ripple');
+    if (ripple) {
+      gsap.killTweensOf(ripple);
+      gsap.set(ripple, { scale: 0.4, opacity: 0.85 });
+      gsap.to(ripple, {
+        scale: 2.2,
+        opacity: 0,
+        duration: 0.65,
+        ease: 'power2.out'
+      });
     }
   }
 
@@ -604,5 +1215,8 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
+    if (this.messageTimer) clearInterval(this.messageTimer);
+    if (this.idleResumeTimeout) clearTimeout(this.idleResumeTimeout);
+    this.stopIdleAnimation();
   }
 }

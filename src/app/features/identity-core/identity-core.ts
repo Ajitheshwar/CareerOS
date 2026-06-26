@@ -4,6 +4,7 @@ import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
+import { BREAKPOINTS } from '../../core/constants/breakpoints';
 
 interface AttributeFragment {
   text: string;
@@ -104,14 +105,14 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
   // Orbiting Attribute Fragments (placed in 3D around centerpiece)
   private readonly rawFragments: AttributeFragment[] = [
-    { text: '3+ Years Experience', color: '#06b6d4', r: 445, theta: 0, phi: Math.PI / 2 - 0.2, speed: 0.002, phiSpeed: 0.006 },
-    { text: 'Angular Specialist', color: '#14b8a6', r: 455, theta: (2 * Math.PI) / 6, phi: Math.PI / 2 + 0.3, speed: -0.0018, phiSpeed: -0.008 },
-    { text: 'Enterprise Applications', color: '#2563eb', r: 435, theta: (4 * Math.PI) / 6, phi: Math.PI / 2 - 0.4, speed: 0.0022, phiSpeed: 0.005 },
-    { text: 'Performance Engineering', color: '#8b5cf6', r: 460, theta: Math.PI, phi: Math.PI / 2 + 0.1, speed: -0.0015, phiSpeed: -0.004 },
-    { text: 'AI Product Builder', color: '#10b981', r: 450, theta: (8 * Math.PI) / 6, phi: Math.PI / 2 - 0.1, speed: 0.0025, phiSpeed: 0.007 },
-    { text: 'Multi-Agent Architecture', color: '#2563eb', r: 485, theta: 5 * Math.PI / 4, phi: Math.PI / 2 - 0.25, speed: -0.002, phiSpeed: 0.005 },
-    { text: 'SDE-II', color: '#06b6d4', r: 440, theta: (10 * Math.PI) / 6, phi: Math.PI / 2 + 0.4, speed: 0.0021, phiSpeed: -0.006 },
-    { text: 'Production Scale Delivery', color: '#8b5cf6', r: 410, theta: 7 * Math.PI / 4, phi: Math.PI / 2 + 0.2, speed: -0.0018, phiSpeed: -0.005 }
+    { text: '3+ Years Experience', color: '#00f0ff', r: 445, theta: 0, phi: Math.PI / 2 - 0.2, speed: 0.002, phiSpeed: 0.006 },
+    { text: 'Angular Specialist', color: '#00dbe9', r: 455, theta: (2 * Math.PI) / 6, phi: Math.PI / 2 + 0.3, speed: -0.0018, phiSpeed: -0.008 },
+    { text: 'Enterprise Applications', color: '#c0c1ff', r: 435, theta: (4 * Math.PI) / 6, phi: Math.PI / 2 - 0.4, speed: 0.0022, phiSpeed: 0.005 },
+    { text: 'Performance Engineering', color: '#ddb7ff', r: 460, theta: Math.PI, phi: Math.PI / 2 + 0.1, speed: -0.0015, phiSpeed: -0.004 },
+    { text: 'AI Product Builder', color: '#00f0ff', r: 450, theta: (8 * Math.PI) / 6, phi: Math.PI / 2 - 0.1, speed: 0.0025, phiSpeed: 0.007 },
+    { text: 'Multi-Agent Architecture', color: '#c0c1ff', r: 485, theta: 5 * Math.PI / 4, phi: Math.PI / 2 - 0.25, speed: -0.002, phiSpeed: 0.005 },
+    { text: 'SDE-II', color: '#00f0ff', r: 440, theta: (10 * Math.PI) / 6, phi: Math.PI / 2 + 0.4, speed: 0.0021, phiSpeed: -0.006 },
+    { text: 'Production Scale Delivery', color: '#ddb7ff', r: 410, theta: 7 * Math.PI / 4, phi: Math.PI / 2 + 0.2, speed: -0.0018, phiSpeed: -0.005 }
   ];
 
   // // Inner Orbit (320-380)
@@ -249,7 +250,7 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
     // Populate particles on a 3D spherical shell
     this.particles = [];
-    const colors = ['6, 182, 212', '20, 184, 166', '139, 92, 246'];
+    const colors = ['0, 240, 255', '0, 219, 233', '221, 183, 255'];
 
     for (let i = 0; i < this.particleCount; i++) {
       // Golden ratio spacing for relatively uniform sphere distribution
@@ -313,8 +314,18 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
       const t = this.easeOutCubic(prog / 0.3);
       cameraZ = -950 + 530 * t; // move camera from -950 to -420
     } else if (prog > 0.3 && prog <= 0.7) {
-      const t = (prog - 0.3) / 0.4;
-      cameraZ = -420 + 40 * t; // slow crawl from -420 to -380
+      // Pause zoom in the middle range (0.38 to 0.62) at the optimal position (-400)
+      if (prog <= 0.38) {
+        const t = (prog - 0.3) / 0.08;
+        const eased = Math.sin(t * Math.PI / 2);
+        cameraZ = -420 + 20 * eased;
+      } else if (prog > 0.38 && prog <= 0.62) {
+        cameraZ = -400; // Plateau: Zooming is paused
+      } else {
+        const t = (prog - 0.62) / 0.08;
+        const eased = Math.sin(t * Math.PI / 2);
+        cameraZ = -400 + 20 * eased;
+      }
     } else { // Exit phase
       const t = (prog - 0.7) / 0.3;
       cameraZ = -380 + 520 * t; // camera zooms past core up to +140
@@ -420,8 +431,19 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
       // drawRing3D(365 * ringsScale, Math.PI / 3, tRing2, `rgba(139, 92, 246, ${ringsAlpha * 0.7})`, ringsAlpha * 0.7);
     }
 
+    // Scale factor for orbit radius based on viewport width
+    let orbitRadiusScale = 1.0;
+    let sphereRadiusScale = 1.0;
+    if (width < BREAKPOINTS.SM) {
+      orbitRadiusScale = 0.32; // Mobile (fits snug in viewport)
+      sphereRadiusScale = 0.65;
+    } else if (width < BREAKPOINTS.LG) {
+      orbitRadiusScale = 0.65; // Tablet
+      sphereRadiusScale = 0.85;
+    }
+
     // 3. Update & Draw Core Particles Swarm
-    const sphereRadius = this.baseSphereRadius * (1 + dissolveProgress * 3.5); // expand sphere on exit
+    const sphereRadius = this.baseSphereRadius * (1 + dissolveProgress * 3.5) * sphereRadiusScale; // expand sphere on exit
     const particleAlpha = Math.max(0, 1.0 - dissolveProgress * 1.2); // fade out on exit
 
     this.particles.forEach(p => {
@@ -459,6 +481,10 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     const fragRadiusMultiplier = 1 + dissolveProgress * 3.0; // fly apart
     const fragAlpha = Math.max(0, 1.0 - dissolveProgress * 1.5); // fade out
 
+    // Calculate aspect ratio adaptive constraints (safeguards from crossing screen edge)
+    const maxX = Math.max(120, centerX); // 115px safety margin on X (fits text width)
+    const maxY = Math.max(80, centerY );  // 60px safety margin on Y
+    
     const projectedList: ProjectedFragment[] = [];
 
     this.rawFragments.forEach(f => {
@@ -466,7 +492,9 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
       f.theta += f.speed * 0.35;
       f.phi += f.phiSpeed * 0.35;
 
-      const effectiveRadius = f.r * fragRadiusMultiplier;
+      const relativeScale = f.r / 450; // Normalize relative to original orbit size
+      const baseRadiusX = maxX * relativeScale;
+      const baseRadiusY = maxY * relativeScale;
       
       const cosPhi = Math.cos(f.phi);
       const sinPhi = Math.sin(f.phi);
@@ -476,10 +504,10 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
       // Egg shape asymmetry: wider at the bottom (positive cosPhi), narrower at top (negative cosPhi)
       const eggFactor = 1.0 + this.eggAsymmetry * cosPhi;
 
-      // Project as an egg-like ellipsoid
-      const fx = effectiveRadius * this.orbitScaleX * sinPhi * cosTheta * eggFactor;
-      const fy = effectiveRadius * this.orbitScaleY * cosPhi;
-      const fz = effectiveRadius * this.orbitScaleZ * sinPhi * sinTheta * eggFactor;
+      // Project as screen aspect ratio adaptive ellipse (landscape on wide screens, portrait on tall screens)
+      const fx = baseRadiusX * fragRadiusMultiplier * sinPhi * cosTheta * eggFactor;
+      const fy = baseRadiusY * fragRadiusMultiplier * cosPhi;
+      const fz = baseRadiusX * fragRadiusMultiplier * sinPhi * sinTheta * eggFactor;
 
       const screenPt = project(fx, fy, fz);
       if (!screenPt) return;
