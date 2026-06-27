@@ -3,20 +3,16 @@ import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
-
-interface MessageState {
-  text: string;
-  opacity: number;
-  transform: string;
-}
+import { MessageState } from '../../shared/interfaces/boot.interface';
+import { BOOT_STEPS, BOOT_DELAYS } from '../../shared/constants/boot.constants';
 
 @Component({
-  selector: 'app-boot-sequence',
+  selector: 'app-boot',
   standalone: true,
-  templateUrl: './boot-sequence.html',
-  styleUrl: './boot-sequence.scss'
+  templateUrl: './boot.html',
+  styleUrl: './boot.scss'
 })
-export class BootSequence implements OnInit, OnDestroy, SceneLifecycle {
+export class BootComponent implements OnInit, OnDestroy, SceneLifecycle {
   private readonly sceneEngine = inject(SceneEngineService);
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
@@ -86,14 +82,7 @@ export class BootSequence implements OnInit, OnDestroy, SceneLifecycle {
    * Coordinates the accumulating text stack timesteps and progress thresholds
    */
   private runBootFlow(): void {
-    const steps = [
-      { text: 'Analyzing Profile...', progress: 20 },
-      { text: 'Exploring Systems Built...', progress: 40 },
-      { text: 'Mapping Career Journey...', progress: 60 },
-      { text: 'Preparing Guided Experience...', progress: 80 },
-      { text: 'Ready.', progress: 100 }
-    ];
-
+    const steps = BOOT_STEPS;
     let currentStep = 0;
 
     const executeStep = () => {
@@ -123,13 +112,13 @@ export class BootSequence implements OnInit, OnDestroy, SceneLifecycle {
       this.pushMessageToStack(step.text);
 
       currentStep++;
-      const delay = step.text === 'Ready.' ? 1400 : 600; // 500ms pacing + extra scan time for ready state
+      const delay = step.text === 'Ready.' ? BOOT_DELAYS.READY_PACE : BOOT_DELAYS.STEP_PACE;
       const timeout = setTimeout(executeStep, delay);
       this.bootTimeouts.push(timeout);
     };
 
     // First message triggers shortly after load finishes
-    const startupTimeout = setTimeout(executeStep, 300);
+    const startupTimeout = setTimeout(executeStep, BOOT_DELAYS.STARTUP);
     this.bootTimeouts.push(startupTimeout);
   }
 
@@ -164,7 +153,7 @@ export class BootSequence implements OnInit, OnDestroy, SceneLifecycle {
         list[lastIdx] = { ...list[lastIdx], transform: 'translate3d(0, 0, 0)' };
         return [...list];
       });
-    }, 40);
+    }, BOOT_DELAYS.GLIDE_FRAME);
   }
 
   // Scene Lifecycle Hooks

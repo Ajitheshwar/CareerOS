@@ -7,10 +7,10 @@ import { JarvisCore } from './shared/components/jarvis-core/jarvis-core';
 import { CustomCursor } from './shared/components/custom-cursor/custom-cursor';
 
 // Scene components
-import { BootSequence } from './features/boot-sequence/boot-sequence';
-import { IdentityCore } from './features/identity-core/identity-core';
-import { SkillsEngine } from './features/skills-engine/skills-engine';
-import { ExperienceDatabase } from './features/experience-database/experience-database';
+import { BootComponent } from './features/boot/boot';
+import { IdentityComponent } from './features/identity/identity';
+import { SkillsComponent } from './features/skills/skills';
+import { ExperienceComponent } from './features/experience/experience';
 import { AiCore } from './features/ai-core/ai-core';
 
 // Services
@@ -25,10 +25,10 @@ import { AnimationService } from './core/services/animation.service';
     FuturisticBg,
     JarvisCore,
     CustomCursor,
-    BootSequence,
-    IdentityCore,
-    SkillsEngine,
-    ExperienceDatabase,
+    BootComponent,
+    IdentityComponent,
+    SkillsComponent,
+    ExperienceComponent,
     AiCore
   ],
   templateUrl: './app.html',

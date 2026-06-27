@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { SceneId, SceneMetadata, SceneState, SceneLifecycle } from '../types/scene.types';
+import { SCENES_LIST, SCENE_HEIGHTS } from '../../shared/constants/scene.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,7 @@ export class SceneEngineService {
   // This can be adjusted at runtime to change the length of the exit animation
   public readonly bootThreshold = signal<number>(0.10);
 
-  private readonly scenesList: { id: SceneId; name: string }[] = [
-    { id: 'boot', name: 'Boot Sequence' },
-    { id: 'identity', name: 'Identity Core' },
-    { id: 'skills', name: 'Skills Engine' },
-    { id: 'experience', name: 'Experience Database' },
-    { id: 'ai', name: 'AI Core' }
-  ];
+  private readonly scenesList = SCENES_LIST;
 
   // Track viewport height to calculate vh-based heights dynamically
   public readonly viewportHeight = signal<number>(
@@ -23,13 +18,7 @@ export class SceneEngineService {
   );
 
   // Configurable heights per scene (mixing relative and absolute pixel heights)
-  private readonly sceneHeights: Record<SceneId, (viewportHeight: number) => number> = {
-    boot: (vh) => vh * 0.5,
-    identity: (vh) => vh * 0.75,
-    skills: (vh) => 1250, // 5 stages * 250px = 1250px
-    experience: (vh) => 6400,
-    ai: (vh) => vh
-  };
+  private readonly sceneHeights = SCENE_HEIGHTS;
 
   // Compute the total page scroll height dynamically in pixels
   public readonly totalScrollHeight = computed(() => {

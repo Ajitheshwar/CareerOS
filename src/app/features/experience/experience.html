@@ -41,7 +41,7 @@
              [style.transform]="'scale(' + info.scale + ') translateY(' + info.translateY + 'px) rotateX(' + (info.translateY * -0.15) + 'deg)'"
              [style.pointer-events]="info.opacity < 0.1 ? 'none' : 'auto'">
              
-          <!-- Information Zone (Left/Right alternating column) - 45% width -->
+          <!-- Information Zone -->
           <div class="info-zone flex flex-col justify-center h-full font-sans text-white relative z-10">
             <div class="scroll-container-wrapper relative w-full overflow-hidden">
               
@@ -181,7 +181,7 @@
             </div>
           </div>
           
-          <!-- Contributions Zone (55% width) -->
+          <!-- Contributions Zone -->
           <div class="visual-system-zone flex items-center justify-center h-auto md:h-full relative pointer-events-auto mt-4 md:mt-0 p-4"
                [class.active]="info.phase >= 2">
             <div class="visual-system-card relative w-full max-w-[550px] md:aspect-[4/3] rounded-lg p-6 overflow-hidden"

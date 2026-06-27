@@ -1,9 +1,8 @@
-
 .skills-scene-container {
   transform-style: preserve-3d;
   width: 100vw;
   height: 100vh;
-  z-index: 14; // lies behind identity-core (z-index: 15) but is active when user scrolls further
+  z-index: 14;
   will-change: transform, opacity, filter;
   background-color: transparent;
 }

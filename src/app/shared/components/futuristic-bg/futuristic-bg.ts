@@ -2,25 +2,8 @@ import { Component, ElementRef, OnInit, AfterViewInit, OnDestroy, inject, effect
 import { JarvisService } from '../../../core/services/jarvis.service';
 import { AnimationService } from '../../../core/services/animation.service';
 import { SceneEngineService } from '../../../core/services/scene-engine.service';
-
-interface BgParticle3D {
-  x: number;
-  y: number;
-  z: number;
-  prevX: number;
-  prevY: number;
-  prevZ: number;
-  vx: number;
-  vy: number;
-  vz: number;
-  size: number;
-  colorRgb: string;
-  opacity: number;
-  type: 'tunnel' | 'stream-left' | 'stream-right' | 'ambient';
-  phase: number;
-  phaseSpeed: number;
-  oscRadius: number;
-}
+import { BgParticle3D } from '../../interfaces/bg.interface';
+import { BG_COLOR_PALETTE } from '../../constants/theme.constants';
 
 @Component({
   selector: 'app-futuristic-bg',
@@ -53,12 +36,7 @@ export class FuturisticBg implements OnInit, AfterViewInit, OnDestroy {
   // Particle speed multiplier to control pacing
   private readonly speedMultiplier = 0.25;
 
-  private readonly colorPalette = [
-    '0, 240, 255',   // Electric Cyan (#00f0ff)
-    '192, 193, 255', // Indigo Secondary (#c0c1ff)
-    '221, 183, 255', // Purple Tertiary (#ddb7ff)
-    '255, 255, 255'  // White
-  ];
+  private readonly colorPalette = BG_COLOR_PALETTE;
 
   constructor() {
     // Watch progress for spatial camera shockwaves

@@ -62,18 +62,10 @@
              [style.z-index]="frag.zIndex"
              [style.display]="frag.opacity <= 0.01 ? 'none' : 'flex'">
           
-          <!-- Holographic Connection Vector Line (drawn from centerpiece to fragment coordinate) -->
-          <!-- <div class="hud-connection-line" 
-               [style.width.px]="frag.vectorLength" 
-               [style.transform]="frag.vectorRotation"
-               [style.opacity]="frag.opacity * 0.35"></div> -->
-
           <!-- Fragment Info Frame -->
           <div class="hud-metadata-frame flex items-center space-x-2">
-            <!-- <span class="hud-bracket-left">[</span> -->
             <span class="hud-dot" [style.background-color]="frag.color"></span>
             <span class="hud-text font-mono text-[16px] md:text-[14px] lg:text-[15px] uppercase tracking-[0.16em]">{{ frag.text }}</span>
-            <!-- <span class="hud-bracket-right">]</span> -->
           </div>
         </div>
       }

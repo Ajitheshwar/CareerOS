@@ -5,50 +5,20 @@ import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
 import { BREAKPOINTS } from '../../core/constants/breakpoints';
-
-interface AttributeFragment {
-  text: string;
-  color: string;
-  // Spherical Coordinates
-  r: number;
-  theta: number;
-  phi: number;
-  // Rotation speeds
-  speed: number;
-  phiSpeed: number;
-}
-
-interface ProjectedFragment {
-  text: string;
-  color: string;
-  transform: string;
-  opacity: number;
-  zIndex: number;
-  vectorLength: number;
-  vectorRotation: string;
-}
-
-interface CoreParticle3D {
-  x: number;
-  y: number;
-  z: number;
-  r: number; // radius from center
-  theta: number;
-  phi: number;
-  speed: number;
-  size: number;
-  colorRgb: string;
-  opacity: number;
-}
+import { AttributeFragment, ProjectedFragment, CoreParticle3D } from '../../shared/interfaces/identity.interface';
+import { RAW_FRAGMENTS } from '../../shared/constants/identity.constants';
+import { IDENTITY_CAMERA } from '../../shared/constants/camera.constants';
+import { easeOutCubic } from '../../shared/utils/math.utils';
+import { rotatePointX, rotatePointY } from '../../shared/utils/geometry.utils';
 
 @Component({
-  selector: 'app-identity-core',
+  selector: 'app-identity',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './identity-core.html',
-  styleUrl: './identity-core.scss'
+  templateUrl: './identity.html',
+  styleUrl: './identity.scss'
 })
-export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
+export class IdentityComponent implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
   private readonly sceneEngine = inject(SceneEngineService);
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
@@ -85,8 +55,8 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
   // Particle Swarm
   private particles: CoreParticle3D[] = [];
-  private readonly particleCount = 130;
-  private readonly baseSphereRadius = 115;
+  private readonly particleCount = IDENTITY_CAMERA.PARTICLE_COUNT;
+  private readonly baseSphereRadius = IDENTITY_CAMERA.BASE_SPHERE_RADIUS;
 
   // Interactive mouse tilt parallax variables
   private mouseX = 0;
@@ -95,46 +65,16 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
   private targetMouseY = 0;
 
   // 3D Camera Configuration
-  private readonly focalLength = 340;
+  private readonly focalLength = IDENTITY_CAMERA.FOCAL_LENGTH;
 
   // Orbit configuration for custom shape (Ellipse/Egg instead of Sphere)
-  private readonly orbitScaleX = 1.35;
-  private readonly orbitScaleY = 0.85;
-  private readonly orbitScaleZ = 1.25;
-  private readonly eggAsymmetry = 0.35; // 0 for perfect ellipse, >0 for egg shape (wider at the bottom)
+  private readonly orbitScaleX = IDENTITY_CAMERA.ORBIT_SCALE_X;
+  private readonly orbitScaleY = IDENTITY_CAMERA.ORBIT_SCALE_Y;
+  private readonly orbitScaleZ = IDENTITY_CAMERA.ORBIT_SCALE_Z;
+  private readonly eggAsymmetry = IDENTITY_CAMERA.EGG_ASYMMETRY;
 
   // Orbiting Attribute Fragments (placed in 3D around centerpiece)
-  private readonly rawFragments: AttributeFragment[] = [
-    { text: '3+ Years Experience', color: '#00f0ff', r: 445, theta: 0, phi: Math.PI / 2 - 0.2, speed: 0.002, phiSpeed: 0.006 },
-    { text: 'Angular Specialist', color: '#00dbe9', r: 455, theta: (2 * Math.PI) / 6, phi: Math.PI / 2 + 0.3, speed: -0.0018, phiSpeed: -0.008 },
-    { text: 'Enterprise Applications', color: '#c0c1ff', r: 435, theta: (4 * Math.PI) / 6, phi: Math.PI / 2 - 0.4, speed: 0.0022, phiSpeed: 0.005 },
-    { text: 'Performance Engineering', color: '#ddb7ff', r: 460, theta: Math.PI, phi: Math.PI / 2 + 0.1, speed: -0.0015, phiSpeed: -0.004 },
-    { text: 'AI Product Builder', color: '#00f0ff', r: 450, theta: (8 * Math.PI) / 6, phi: Math.PI / 2 - 0.1, speed: 0.0025, phiSpeed: 0.007 },
-    { text: 'Multi-Agent Architecture', color: '#c0c1ff', r: 485, theta: 5 * Math.PI / 4, phi: Math.PI / 2 - 0.25, speed: -0.002, phiSpeed: 0.005 },
-    { text: 'SDE-II', color: '#00f0ff', r: 440, theta: (10 * Math.PI) / 6, phi: Math.PI / 2 + 0.4, speed: 0.0021, phiSpeed: -0.006 },
-    { text: 'Production Scale Delivery', color: '#ddb7ff', r: 410, theta: 7 * Math.PI / 4, phi: Math.PI / 2 + 0.2, speed: -0.0018, phiSpeed: -0.005 }
-  ];
-
-  // // Inner Orbit (320-380)
-  //   { text: 'SDE-II', color: '#06b6d4', r: 330, theta: 0, phi: Math.PI / 2 - 0.15, speed: 0.002, phiSpeed: 0.0005 },
-  //   { text: 'Angular Specialist', color: '#14b8a6', r: 345, theta: Math.PI / 2, phi: Math.PI / 2 + 0.2, speed: -0.0015, phiSpeed: -0.0004 },
-  //   { text: 'AI Product Builder', color: '#10b981', r: 360, theta: Math.PI, phi: Math.PI / 2 - 0.25, speed: 0.0018, phiSpeed: 0.0006 },
-  //   { text: 'Technical Ownership', color: '#8b5cf6', r: 375, theta: 3 * Math.PI / 2, phi: Math.PI / 2 + 0.1, speed: -0.0022, phiSpeed: -0.0005 },
-
-  //   // Middle Orbit (420-500)
-  //   { text: 'Enterprise Scale Systems', color: '#2563eb', r: 430, theta: Math.PI / 6, phi: Math.PI / 2 + 0.35, speed: 0.0014, phiSpeed: 0.0004 },
-  //   { text: 'Time Management Revamp', color: '#06b6d4', r: 450, theta: 5 * Math.PI / 6, phi: Math.PI / 2 - 0.3, speed: -0.0016, phiSpeed: -0.0006 },
-  //   { text: 'Design Systems', color: '#14b8a6', r: 470, theta: 7 * Math.PI / 6, phi: Math.PI / 2 + 0.25, speed: 0.002, phiSpeed: 0.0005 },
-  //   { text: 'CareerOps Creator', color: '#8b5cf6', r: 490, theta: 11 * Math.PI / 6, phi: Math.PI / 2 - 0.2, speed: -0.0018, phiSpeed: -0.0004 },
-
-  //   // Outer Orbit (520-620)
-  //   { text: '100+ Components Built', color: '#10b981', r: 535, theta: Math.PI / 4, phi: Math.PI / 2 - 0.35, speed: 0.0012, phiSpeed: 0.0003 },
-  //   { text: '5s → <1s Performance', color: '#06b6d4', r: 560, theta: 3 * Math.PI / 4, phi: Math.PI / 2 + 0.3, speed: -0.0014, phiSpeed: -0.0005 },
-
-  // Easing helper
-  private easeOutCubic(t: number): number {
-    return 1 - Math.pow(1 - t, 3);
-  }
+  private readonly rawFragments = RAW_FRAGMENTS;
 
   // Compute container entry/exit transformations
   public readonly containerStyle = computed(() => {
@@ -157,7 +97,7 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     let opacity = 1;
 
     if (prog <= 0.3) {
-      const t = this.easeOutCubic(prog / 0.3);
+      const t = easeOutCubic(prog / 0.3);
       scale = 0.3 + 0.7 * t;
       translateZ = -500 + 500 * t;
       opacity = t;
@@ -183,7 +123,7 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     let blur = 0;
 
     if (prog <= 0.3) {
-      const t = this.easeOutCubic(prog / 0.3);
+      const t = easeOutCubic(prog / 0.3);
       translateZ = -300 + 300 * t;
       opacity = t;
     } else if (prog > 0.7) {
@@ -210,7 +150,6 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
   }
 
   ngAfterViewInit(): void {
-    console.log(this.animationService.getIsBrowser())
     if (this.animationService.getIsBrowser()) {
       // If scene is active initially (e.g. page refreshed on scroll spot)
       if (this.active()) {
@@ -311,7 +250,7 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     let dissolveProgress = 0.0;
     
     if (prog <= 0.3) {
-      const t = this.easeOutCubic(prog / 0.3);
+      const t = easeOutCubic(prog / 0.3);
       cameraZ = -950 + 530 * t; // move camera from -950 to -420
     } else if (prog > 0.3 && prog <= 0.7) {
       // Pause zoom in the middle range (0.38 to 0.62) at the optimal position (-400)
@@ -346,19 +285,6 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
     const camAngleY = orbitYaw + this.mouseX * 0.16;
     const camAngleX = orbitPitch + this.mouseY * 0.16;
 
-    // Helper functions for 3D rotation around Origin
-    const rotatePointY = (x: number, y: number, z: number, angle: number) => {
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
-      return { x: x * cos - z * sin, y, z: x * sin + z * cos };
-    };
-
-    const rotatePointX = (x: number, y: number, z: number, angle: number) => {
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
-      return { x, y: y * cos + z * sin, z: -y * sin + z * cos };
-    };
-
     // Helper to project 3D to 2D screen coordinate relative to Camera
     const project = (x: number, y: number, z: number) => {
       // 1. Apply camera rotations
@@ -381,55 +307,6 @@ export class IdentityCore implements OnInit, AfterViewInit, OnDestroy, SceneLife
         depth: r.z
       };
     };
-
-    // 2. Draw 3D Orbit Ring Paths
-    // const drawRing3D = (radius: number, rotX: number, rotY: number, color: string, alpha: number) => {
-    //   this.ctx!.save();
-    //   this.ctx!.strokeStyle = color;
-    //   this.ctx!.lineWidth = 0.8;
-    //   this.ctx!.beginPath();
-
-    //   const segments = 60;
-    //   let firstPoint = true;
-
-    //   for (let j = 0; j <= segments; j++) {
-    //     const a = (j * Math.PI * 2) / segments;
-    //     // Ring lies in X-Z plane originally
-    //     let rx = radius * Math.cos(a);
-    //     let ry = 0;
-    //     let rz = radius * Math.sin(a);
-
-    //     // Rotate ring around local X and Y for tilt orientation
-    //     let pt = rotatePointX(rx, ry, rz, rotX);
-    //     pt = rotatePointY(pt.x, pt.y, pt.z, rotY);
-
-    //     // Project relative to camera
-    //     const screenPt = project(pt.x, pt.y, pt.z);
-    //     if (!screenPt) continue;
-
-    //     if (firstPoint) {
-    //       this.ctx!.moveTo(screenPt.x, screenPt.y);
-    //       firstPoint = false;
-    //     } else {
-    //       this.ctx!.lineTo(screenPt.x, screenPt.y);
-    //     }
-    //   }
-    //   this.ctx!.stroke();
-    //   this.ctx!.restore();
-    // };
-
-    // Render outer rings with rotation relative to time
-    const tRing1 = this.renderTime * 0.004;
-    const tRing2 = -this.renderTime * 0.003;
-    
-    // Scale down rings and fade them out on dissolve
-    const ringsScale = 1 - dissolveProgress * 0.65;
-    const ringsAlpha = Math.max(0, 0.45 - dissolveProgress * 0.5);
-
-    if (ringsAlpha > 0.01) {
-      // drawRing3D(340 * ringsScale, Math.PI / 2, tRing1, `rgba(6, 182, 212, ${ringsAlpha})`, ringsAlpha);
-      // drawRing3D(365 * ringsScale, Math.PI / 3, tRing2, `rgba(139, 92, 246, ${ringsAlpha * 0.7})`, ringsAlpha * 0.7);
-    }
 
     // Scale factor for orbit radius based on viewport width
     let orbitRadiusScale = 1.0;

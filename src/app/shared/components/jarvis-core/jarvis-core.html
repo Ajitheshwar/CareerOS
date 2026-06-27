@@ -1,4 +1,4 @@
-<div [class]="containerClass()" [style]="jarvisStyle()" class="jarvis-container z-50">
+<div [class]="containerClass() + ' jarvis-container z-50'" [style]="jarvisStyle()" [class.contacts-active]="isContactsActive()">
   
   <!-- Final mode headings -->
   @if (position() === 'final') {
@@ -14,8 +14,8 @@
     <!-- 1. AI Messages (only in floating mode, to the left of the core) -->
     @if (position() === 'floating' && currentSceneMessage()) {
       <div class="scene-message-wrapper mr-5 font-space-mono text-[10px] md:text-xs text-on-surface/90 pointer-events-auto transition-opacity duration-300"
-           [class.opacity-0]="isHovered"
-           [class.pointer-events-none]="isHovered">
+           [class.opacity-0]="isHovered()"
+           [class.pointer-events-none]="isHovered()">
         <div class="scene-message-text">{{ currentSceneMessage() }}</div>
       </div>
     }
@@ -45,12 +45,12 @@
         @for (node of contactNodesList; track node.id) {
           <a [href]="node.url" 
              target="_blank"
-             [class]="'contact-node-item node-' + node.id"
+             [class]="'contact-node-item contact-node node-' + node.id + ' absolute flex flex-col items-center justify-center pointer-events-auto font-space-mono text-white transition-all duration-300'"
              [class.idle-active]="isIdleActive()"
              [style.--node-color]="node.color"
+             [style.--theme-color]="node.color"
              (mouseenter)="onNodeHover(node.id)"
-             (mouseleave)="onNodeLeave(node.id)"
-             class="absolute flex flex-col items-center justify-center pointer-events-auto font-space-mono text-white transition-all duration-300">
+             (mouseleave)="onNodeLeave(node.id)">
              
              <!-- Glowing Icon Wrapper -->
              <div class="node-icon-wrapper flex items-center justify-center rounded-full z-10 transition-all duration-300"
@@ -165,8 +165,7 @@
           <canvas class="jarvis-canvas absolute inset-0 w-full h-full pointer-events-none transform-style-3d"></canvas>
 
           <!-- Central Energy Nucleus (Layer 1) -->
-          <div class="jarvis-layer core-layer absolute inset-0 transform-style-3d" 
-               [class]="progressLevelClass()">
+          <div [class]="'jarvis-layer core-layer absolute inset-0 transform-style-3d ' + progressLevelClass()">
             <svg viewBox="0 0 200 200" class="w-full h-full">
               <defs>
                 <filter id="nucleus-glow" x="-50%" y="-50%" width="200%" height="200%">

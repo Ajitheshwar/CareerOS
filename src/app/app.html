@@ -8,19 +8,19 @@
 <div class="viewport-container">
   
   <!-- Boot Sequence scene (remains in DOM for exit transition) -->
-  <app-boot-sequence 
+  <app-boot 
     [active]="sceneState().boot.isActive || isBooting()" 
     [progress]="sceneState().boot.progress" />
       
-  <app-identity-core 
+  <app-identity 
     [active]="sceneState().identity.isActive" 
     [progress]="sceneState().identity.progress" />
       
-  <app-skills-engine 
+  <app-skills 
     [active]="sceneState().skills.isActive" 
     [progress]="sceneState().skills.progress" />
       
-  <app-experience-database 
+  <app-experience 
     [active]="sceneState().experience.isActive" 
     [progress]="sceneState().experience.progress" />
       

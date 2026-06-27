@@ -2,57 +2,10 @@ import { Component, ElementRef, OnInit, AfterViewInit, OnDestroy, inject, signal
 import { JarvisService } from '../../../core/services/jarvis.service';
 import { SceneEngineService } from '../../../core/services/scene-engine.service';
 import { AnimationService } from '../../../core/services/animation.service';
-import { JarvisPosition } from '../../../core/types/jarvis.types';
+import { JarvisPosition, Particle3D, Fragment3D, Spark3D, DepthSortedObject } from '../../interfaces/jarvis.interface';
+import { SCENE_MESSAGES, CONTACT_NODES_LIST } from '../../constants/jarvis.constants';
+import { JARVIS_COLOR_PALETTE } from '../../constants/theme.constants';
 import { gsap } from 'gsap';
-
-interface Particle3D {
-  r: number;       // base sphere radius
-  theta: number;   // longitude angle
-  phi: number;     // latitude angle
-  speed: number;   // orbital speed
-  phiSpeed: number;// vertical float speed
-  size: number;    // physical base size
-  colorRgb: string;// color channel representation
-  pulsePhase: number;
-  pulseSpeed: number;
-  // Computed 3D Coordinates
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface Fragment3D {
-  r: number;
-  theta: number;
-  phi: number;
-  speed: number;
-  phiSpeed: number;
-  rotation: number;
-  rotSpeed: number;
-  size: number;
-  type: 'triangle' | 'square' | 'line';
-  colorRgb: string;
-  // Computed 3D Coordinates
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface Spark3D {
-  r: number;        // distance from center
-  theta: number;    // angle in XY plane
-  phi: number;      // angle in Z plane
-  speed: number;    // radial speed outwards
-  length: number;   // tail length
-  width: number;    // spark line thickness
-  life: number;     // current life ticks
-  maxLife: number;  // max life ticks
-  colorRgb: string;
-}
-
-type DepthSortedObject = 
-  | { type: 'particle'; obj: Particle3D; z: number }
-  | { type: 'fragment'; obj: Fragment3D; z: number };
 
 @Component({
   selector: 'app-jarvis-core',
@@ -77,84 +30,19 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
   private messageTimer: any = null;
 
   private idleResumeTimeout: any = null;
-  public isHovered = false;
+  public readonly isHovered = signal<boolean>(false);
   public readonly isIdleActive = signal<boolean>(false);
+
+  // Compute if contact nodes are active/revealed
+  public readonly isContactsActive = computed(() => {
+    return this.position() === 'final' || (this.position() === 'floating' && this.isHovered());
+  });
 
   private previousPosition: JarvisPosition = 'center';
   private isInitialized = false;
 
-  private readonly sceneMessages: Record<string, string[]> = {
-    boot: [
-      'Welcome to CareerOS.',
-      'Initializing the experience...',
-      'Loading my engineering profile...',
-      'Connecting all systems...',
-      'Environment is ready.',
-      'Let\'s begin the journey.'
-    ],
-
-    identity: [
-      'Welcome to my Identity Core.',
-      'Discover who I am.',
-      'Beyond titles and resumes.',
-      'Explore what drives me.',
-      'Every fragment tells a story.',
-      'This is where it all begins.'
-    ],
-
-    skills: [
-      'Entering my Skills Engine.',
-      'Explore my technical expertise.',
-      'Each chamber is a skill domain.',
-      'Hover to inspect technologies.',
-      'Every skill solved real problems.',
-      'Keep exploring.'
-    ],
-
-    experience: [
-      'Welcome to my Engineering Journey.',
-      'Follow my career timeline.',
-      'Every milestone shaped me.',
-      'Explore projects and achievements.',
-      'See the impact behind my work.',
-      'The journey continues.'
-    ],
-
-    ai: [
-      'Welcome to my AI Core.',
-      'This is how I think.',
-      'Explore my engineering principles.',
-      'Discover CareerOps.',
-      'See what I\'m building next.',
-      'Let\'s connect.'
-    ]
-  };
-  public readonly contactNodesList = [
-    {
-      id: 'github',
-      label: 'GitHub',
-      url: 'https://github.com/Ajitheshwar',
-      color: '#00f0ff'
-    },
-    {
-      id: 'linkedin',
-      label: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/vadla-ajitheshwar/',
-      color: '#c0c1ff'
-    },
-    {
-      id: 'phone',
-      label: 'Phone',
-      url: 'tel:+919347966409',
-      color: '#ffaa00'
-    },
-    {
-      id: 'email',
-      label: 'Email',
-      url: 'mailto:ajitheshwar1923@gmail.com',
-      color: '#ddb7ff'
-    }
-  ];
+  private readonly sceneMessages = SCENE_MESSAGES;
+  public readonly contactNodesList = CONTACT_NODES_LIST;
 
   // Compute offset for the progress circle (circumference = 2 * Math.PI * 72px ≈ 452.4)
   public readonly progressOffset = computed(() => {
@@ -197,6 +85,7 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     return `jarvis-${pos} ${activeMode}`;
   });
 
+  // Level selector
   public readonly progressLevelClass = computed(() => {
     const prog = this.progress();
     if (prog >= 100) return 'level-5';
@@ -217,12 +106,7 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
   private renderTime = 0;
 
   // Particle color channels matching accent theme
-  private readonly colorPalette = [
-    '0, 240, 255',  // Electric Cyan
-    '0, 85, 255',   // Vibrant Blue
-    '170, 225, 255',// Soft Light Blue
-    '255, 255, 255' // Soft White
-  ];
+  private readonly colorPalette = JARVIS_COLOR_PALETTE;
 
   constructor() {
     // Watch position signal for FLIP transitions
@@ -275,6 +159,17 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
         this.triggerFinalReveal();
       } else {
         this.resetNodesToCenter();
+      }
+    });
+
+    // Watch contacts-active state to resize the particle canvas after transitions settle
+    effect(() => {
+      const active = this.isContactsActive();
+      if (this.isInitialized) {
+        // Trigger resize multiple times during size transition for smooth canvas scaling
+        for (let i = 0; i <= 8; i++) {
+          setTimeout(() => this.resizeCanvas(), i * 100);
+        }
       }
     });
   }
@@ -584,6 +479,17 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly onResize = (): void => {
     this.resizeCanvas();
+    if (this.isContactsActive()) {
+      const isFinal = this.position() === 'final';
+      const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
+      nodes.forEach(id => {
+        const element = this.el.nativeElement.querySelector(`.node-${id}`);
+        if (element) {
+          const coords = this.getResponsiveCoords(id, isFinal);
+          gsap.set(element, { x: coords.x, y: coords.y });
+        }
+      });
+    }
   };
 
   /**
@@ -880,22 +786,67 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Contact Nodes animation helpers
    */
+  private getResponsiveDistance(isFinal: boolean): number {
+    if (!this.animationService.getIsBrowser()) return 150;
+    
+    if (!isFinal) {
+      return 115; // static floating mode distance
+    }
+    
+    const width = window.innerWidth;
+    let radius = 250; // default lg: 500px diameter / 2
+    let offset = 150;  // default lg offset
+    
+    if (width <= 768) {
+      // sm breakpoint
+      radius = 140; // 280px diameter / 2
+      offset = 70;
+    } else if (width <= 1200) {
+      // md breakpoint
+      radius = 190; // 380px diameter / 2
+      offset = 100;
+    }
+    
+    // Add offset so nodes sit nicely outside the core (increased for final mode)
+    return radius + offset;
+  }
+
+  private getResponsiveCoords(id: string, isFinal: boolean): { x: number; y: number } {
+    const d = this.getResponsiveDistance(isFinal);
+    
+    if (isFinal) {
+      const diag = Math.round(d * 0.7071);
+      if (id === 'github') return { x: diag, y: -diag };
+      if (id === 'linkedin') return { x: -diag, y: -diag };
+      if (id === 'phone') return { x: -diag, y: diag };
+      if (id === 'email') return { x: diag, y: diag };
+    } else {
+      // Static coordinates for floating mode
+      if (id === 'github') return { x: 0, y: -115 };
+      if (id === 'linkedin') return { x: -60, y: -116 };
+      if (id === 'phone') return { x: -105, y: -46 };
+      if (id === 'email') return { x: -115, y: 25 }; // shifted slightly down
+    }
+    return { x: 0, y: 0 };
+  }
+
   public getConduitPath(id: string): string {
     const pos = this.position();
     const isFinal = pos === 'final';
+    const d = this.getResponsiveDistance(isFinal);
     
     if (isFinal) {
-      // Final Mode (Nodes diagonal at 45, 135, 225, 315 degrees)
-      if (id === 'github') return 'M 0 0 L 92 -92';
-      if (id === 'linkedin') return 'M 0 0 L -92 -92';
-      if (id === 'phone') return 'M 0 0 L -92 92';
-      if (id === 'email') return 'M 0 0 L 92 92';
+      const diag = Math.round(d * 0.7071);
+      if (id === 'github') return `M 0 0 L ${diag} ${-diag}`;
+      if (id === 'linkedin') return `M 0 0 L ${-diag} ${-diag}`;
+      if (id === 'phone') return `M 0 0 L ${-diag} ${diag}`;
+      if (id === 'email') return `M 0 0 L ${diag} ${diag}`;
     } else {
-      // Floating Mode (Nodes above JARVIS)
+      // Static curved paths for floating mode
       if (id === 'github') return 'M 0 0 L 0 -115';
-      if (id === 'linkedin') return 'M 0 0 L 0 -40 Q 0 -55 -15 -62 L -62 -96';
+      if (id === 'linkedin') return 'M 0 0 L 0 -40 Q 0 -55 -15 -62 L -60 -116';
       if (id === 'phone') return 'M 0 0 L 0 -15 Q 0 -30 -15 -35 L -105 -46';
-      if (id === 'email') return 'M 0 0 L -115 0';
+      if (id === 'email') return 'M 0 0 L -115 25'; // shifted slightly down
     }
     return '';
   }
@@ -934,7 +885,7 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     const pos = this.position();
     if (pos !== 'floating') return;
 
-    this.isHovered = true;
+    this.isHovered.set(true);
     this.isIdleActive.set(false); // Stop CSS idle jump animation immediately
 
     if (this.idleResumeTimeout) {
@@ -945,19 +896,12 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     // Trigger core pulse
     this.triggerCorePulse();
 
-    const hoverCoords = {
-      github: { x: 0, y: -115 },      // Top
-      linkedin: { x: -62, y: -96 },   // Top-Left (~33 degrees)
-      phone: { x: -105, y: -46 },    // Top-Left (~66 degrees)
-      email: { x: -115, y: 0 }        // Left
-    };
-
     const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
     nodes.forEach((id, idx) => {
       const element = this.el.nativeElement.querySelector(`.node-${id}`);
       const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
       const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
-      const coords = hoverCoords[id];
+      const coords = this.getResponsiveCoords(id, false);
 
       if (!element) return;
 
@@ -1000,7 +944,7 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     const pos = this.position();
     if (pos !== 'floating') return;
 
-    this.isHovered = false;
+    this.isHovered.set(false);
 
     const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
     nodes.forEach((id, idx) => {
@@ -1059,19 +1003,12 @@ export class JarvisCore implements OnInit, AfterViewInit, OnDestroy {
     this.resetNodesToCenter();
 
     // Wait 500ms before deploying nodes
-    const finalCoords = {
-      github: { x: 92, y: -92 },      // 45 degrees
-      linkedin: { x: -92, y: -92 },   // 135 degrees
-      phone: { x: -92, y: 92 },       // 225 degrees
-      email: { x: 92, y: 92 }         // 315 degrees
-    };
-
     const nodes = ['github', 'linkedin', 'phone', 'email'] as const;
     nodes.forEach((id, idx) => {
       const element = this.el.nativeElement.querySelector(`.node-${id}`);
       const label = this.el.nativeElement.querySelector(`.node-${id} .node-label`);
       const rail = this.el.nativeElement.querySelector(`.conduit-group-${id}`);
-      const coords = finalCoords[id];
+      const coords = this.getResponsiveCoords(id, true);
 
       if (!element) return;
 

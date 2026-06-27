@@ -3,65 +3,12 @@ import { CommonModule } from '@angular/common';
 import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
+import { CursorService } from '../../core/services/cursor.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
 import { BREAKPOINTS } from '../../core/constants/breakpoints';
-
-interface AttributeNode {
-  name: string;
-  dx: number;
-  dy: number;
-}
-
-interface SystemData {
-  id: number;
-  name: string;
-  purpose: string;
-  description: string;
-  color: string;
-  strengthNodes: AttributeNode[];
-}
-
-interface BgParticle {
-  x: number;
-  y: number;
-  z: number;
-  size: number;
-  vx: number;
-  vy: number;
-  vz: number;
-  color: string;
-  opacity: number;
-}
-
-interface CoreSynapse {
-  x: number;
-  y: number;
-  targetX: number;
-  targetY: number;
-  t: number;
-  speed: number;
-  color: string;
-}
-
-interface EnergyRipple {
-  r: number;
-  maxR: number;
-  opacity: number;
-  speed: number;
-  color: string;
-}
-
-function createStrengthNodes(names: string[], radius = 115): AttributeNode[] {
-  const count = names.length;
-  return names.map((name, idx) => {
-    const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / count;
-    return {
-      name,
-      dx: Math.round(radius * Math.cos(angle)),
-      dy: Math.round(radius * Math.sin(angle))
-    };
-  });
-}
+import { AttributeNode, SystemData, ProjectedSystemNode, BgParticle, CoreSynapse, EnergyRipple } from '../../shared/interfaces/node.interface';
+import { SYSTEMS_DATA } from '../../shared/constants/ai.constants';
+import { AI_CAMERA } from '../../shared/constants/camera.constants';
 
 @Component({
   selector: 'app-ai-core',
@@ -74,6 +21,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
   private readonly sceneEngine = inject(SceneEngineService);
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
+  private readonly cursorService = inject(CursorService);
   private readonly el = inject(ElementRef);
 
   // Active state and scroll progress normalized within Scene 5 (0.0 to 1.0)
@@ -155,80 +103,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
   private energyRipples: EnergyRipple[] = [];
 
   // Static systems details data
-  public readonly systemsData: SystemData[] = [
-    {
-      id: 1,
-      name: 'CareerOps Platform',
-      purpose: 'What I Built',
-      description: 'An AI-powered Career Operating System designed to help job seekers with job discovery, resume optimization, interview preparation, career guidance, and application tracking.',
-      color: '#00f0ff', // Electric Cyan
-      strengthNodes: createStrengthNodes([
-        'Resume Intelligence',
-        'Job Discovery',
-        'Interview Preparation',
-        'Career Guidance',
-        'Application Tracking'
-      ], 150)
-    },
-    {
-      id: 2,
-      name: 'Multi-Agent Architecture',
-      purpose: 'How I Built It',
-      description: 'A multi-agent ecosystem where specialized AI agents collaborate through orchestration workflows to solve career-related tasks.',
-      color: '#ffaa00', // Neon Orange
-      strengthNodes: createStrengthNodes([
-        'Agent Orchestration',
-        'Context Sharing',
-        'Workflow Intelligence',
-        'LangGraph',
-        'Multi-Agent Systems'
-      ], 150)
-    },
-    {
-      id: 3,
-      name: 'Engineering DNA',
-      purpose: 'How I Think',
-      description: 'The engineering principles and mindset that guide my approach to software design, problem solving, and product development.',
-      color: '#c0c1ff', // Indigo
-      strengthNodes: createStrengthNodes([
-        'Ownership',
-        'Execution',
-        'Systems Thinking',
-        'Performance First',
-        'Product Mindset',
-        'Continuous Learning'
-      ], 160)
-    },
-    {
-      id: 4,
-      name: 'Current Exploration',
-      purpose: 'What I Am Learning',
-      description: 'The technologies, concepts, and ideas I am actively exploring to expand my capabilities as an engineer and AI builder.',
-      color: '#00ffaa', // Neon Mint-Teal
-      strengthNodes: createStrengthNodes([
-        'Agentic AI',
-        'Automation',
-        'AI Workflows',
-        'Developer Productivity',
-        'LLM Systems'
-      ], 150)
-    },
-    {
-      id: 5,
-      name: 'Recruiter Snapshot',
-      purpose: 'Quick Professional Summary',
-      description: 'A concise overview of my experience, achievements, technical ownership, and current focus.',
-      color: '#e2e1ee', // Soft White
-      strengthNodes: createStrengthNodes([
-        '3+ Years Experience',
-        'Enterprise Applications',
-        'AI Builder',
-        'SDE-II',
-        '100+ Components Built',
-        'Best Employee Award'
-      ], 160)
-    }
-  ];
+  public readonly systemsData = SYSTEMS_DATA;
 
   
 
@@ -343,6 +218,14 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
         }, 0);
       }
     });
+
+    // Keep cursor color synced to the active system color
+    effect(() => {
+      const idx = this.activeIdx();
+      if (this.isSceneActive && idx >= 0 && idx < this.systemsData.length) {
+        this.cursorService.setSceneColor(this.systemsData[idx].color);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -365,6 +248,11 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
     console.log('[Scene: AI Core] Entered');
     this.isSceneActive = true;
     this.jarvisService.showMessage('Accessing Core Orchestration Terminal', 4000);
+    // Apply active system color immediately on enter
+    const idx = this.activeIdx();
+    if (idx >= 0 && idx < this.systemsData.length) {
+      this.cursorService.setSceneColor(this.systemsData[idx].color);
+    }
 
     if (this.animationService.getIsBrowser() && !this.animationFrameId) {
       this.startAnimationLoop();
@@ -374,6 +262,7 @@ export class AiCore implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle 
   onLeave(): void {
     console.log('[Scene: AI Core] Leaved');
     this.isSceneActive = false;
+    this.cursorService.setSceneColor(null);
   }
 
   onProgress(progress: number): void {

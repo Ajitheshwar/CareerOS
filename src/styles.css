@@ -102,7 +102,6 @@ body {
 
 .headline-lg {
   font-family: var(--font-sora);
-  font-size: 40px;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: 0.02em;
@@ -139,7 +138,6 @@ body {
 
 .headline-lg-mobile {
   font-family: var(--font-sora);
-  font-size: 32px;
   font-weight: 600;
   line-height: 1.2;
 }

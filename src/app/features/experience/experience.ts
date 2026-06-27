@@ -3,68 +3,26 @@ import { CommonModule } from '@angular/common';
 import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
+import { CursorService } from '../../core/services/cursor.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
-
-interface Milestone {
-  id: number;
-  year: string;
-  title: string;
-  designation?: string;
-  company?: string;
-  project?: string;
-  story: string;
-  tech: string[];
-  contributions: string[];
-  challenges: string[];
-  impact: string[];
-  learnings: string[];
-  side: 'left' | 'right';
-  x: number;
-  y: number;
-  z: number;
-  color: string;
-  colorRgb: string;
-}
-
-
-interface CameraKeyframe {
-  p: number;         // global scroll progress (0.0 to 1.0)
-  z: number;         // camera Z coordinate
-  x: number;         // camera X coordinate (drift)
-  y: number;         // camera Y coordinate
-  activeIdx: number; // which milestone is in focus (-1 if none)
-  focusWeight: number; // weight of active focus (0.0 to 1.0)
-}
-
-interface AmbientStar {
-  x: number;
-  y: number;
-  z: number;
-  size: number;
-  opacity: number;
-}
-
-interface WindingParticle {
-  startIdx: number;
-  endIdx: number;
-  t: number;          // progression 0.0 to 1.0
-  speed: number;
-  color: string;
-  size: number;
-  angleOffset: number;
-}
+import { Milestone, AmbientStar, WindingParticle } from '../../shared/interfaces/timeline.interface';
+import { CameraKeyframe } from '../../shared/interfaces/animation.interface';
+import { FOCUS_WINDOWS, MILESTONES_LIST } from '../../shared/constants/timeline.constants';
+import { CAMERA_KEYFRAMES } from '../../shared/constants/animation.constants';
+import { EXPERIENCE_CAMERA } from '../../shared/constants/camera.constants';
 
 @Component({
-  selector: 'app-experience-database',
+  selector: 'app-experience',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './experience-database.html',
-  styleUrl: './experience-database.scss'
+  templateUrl: './experience.html',
+  styleUrl: './experience.scss'
 })
-export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
+export class ExperienceComponent implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
   private readonly sceneEngine = inject(SceneEngineService);
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
+  private readonly cursorService = inject(CursorService);
   private readonly el = inject(ElementRef);
 
   // Active state and scroll progress normalized within Scene 4 limits (0.0 to 1.0)
@@ -77,16 +35,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
   });
 
   // Focus window intervals for the 8 milestones
-  public readonly focusWindows = [
-    { pStart: 0.01, pEnd: 0.12 }, // Milestone 1
-    { pStart: 0.14, pEnd: 0.24 }, // Milestone 2
-    { pStart: 0.26, pEnd: 0.36 }, // Milestone 3
-    { pStart: 0.38, pEnd: 0.50 }, // Milestone 4 (Hero)
-    { pStart: 0.52, pEnd: 0.62 }, // Milestone 5
-    { pStart: 0.64, pEnd: 0.74 }, // Milestone 6
-    { pStart: 0.76, pEnd: 0.86 }, // Milestone 7
-    { pStart: 0.88, pEnd: 0.98 }  // Milestone 8 (Hero AI / CareerOps)
-  ];
+  public readonly focusWindows = FOCUS_WINDOWS;
 
   // Computes active milestone info, local progress, active phase, and transition metrics
   public readonly activeMilestoneInfo = computed(() => {
@@ -246,7 +195,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
   public readonly focusWeight = computed(() => this.cameraState().focusWeight);
 
   // 3D camera projection config
-  private readonly focalLength = 350;
+  private readonly focalLength = EXPERIENCE_CAMERA.FOCAL_LENGTH;
   private mouseX = 0;
   private mouseY = 0;
   private targetMouseX = 0;
@@ -269,384 +218,10 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
   private scrollTimeoutId: any = null;
 
   // Expanded Milestone Database
-  public readonly milestonesList: Milestone[] = [
-    {
-      id: 1,
-      year: '2022',
-      title: 'Engineering Foundation',
-      designation: 'MEAN Stack Learner',
-      story: 'Started learning full-stack web development and software engineering fundamentals. Built multiple projects while learning frontend development, backend systems, databases, APIs, and software architecture concepts. This phase laid the foundation for the engineering journey.',
-      tech: ['Angular', 'TypeScript', 'JavaScript', 'Node.js', 'Express', 'MongoDB', 'HTML5', 'CSS3', 'Git', 'REST APIs'],
-      contributions: [
-        'Learned Angular framework fundamentals.',
-        'Built frontend applications using TypeScript.',
-        'Developed backend APIs using Node.js.',
-        'Worked with MongoDB databases.',
-        'Learned Express.js application development.',
-        'Practiced REST API integration.',
-        'Built multiple end-to-end learning projects.',
-        'Learned software development lifecycle concepts.',
-        'Explored Git and collaborative workflows.'
-      ],
-      challenges: [
-        'Understanding frontend architecture.',
-        'Learning backend development concepts.',
-        'Building complete applications independently.',
-        'Learning database design.',
-        'Connecting frontend and backend systems.'
-      ],
-      impact: [
-        'Established strong engineering fundamentals.',
-        'Built confidence in full-stack development.',
-        'Learned software architecture concepts.',
-        'Prepared for professional software development.'
-      ],
-      learnings: [
-        'Full-stack thinking.',
-        'Problem solving.',
-        'Application architecture.',
-        'Software engineering fundamentals.'
-      ],
-      side: 'left',
-      x: -240,
-      y: -80,
-      z: 400,
-      color: '#e2e1ee',
-      colorRgb: '226, 225, 238'
-    },
-    {
-      id: 2,
-      year: 'Jan 2023 – May 2023',
-      title: 'Software Development Intern',
-      project: 'Vegetable Vendor Application',
-      designation: 'Software Development Intern',
-      story: 'Worked on the Vegetable Vendor Application using the MEAN stack and gained first-hand experience building business applications in a professional environment. Contributed to dashboards, workflows, and analytics systems while learning production-grade development practices.',
-      tech: ['Angular', 'Node.js', 'Express', 'MongoDB', 'Highcharts', 'TypeScript', 'REST APIs', 'WebSockets'],
-      contributions: [
-        'Developed frontend modules using Angular.',
-        'Implemented dashboard functionality.',
-        'Worked on analytics visualizations.',
-        'Built reusable UI components.',
-        'Integrated APIs with frontend systems.',
-        'Participated in feature development.',
-        'Improved application workflows.',
-        'Collaborated with mentors and team members.',
-        'Contributed to business-focused product development.'
-      ],
-      challenges: [
-        'First production-level development experience.',
-        'Understanding business requirements.',
-        'Building maintainable frontend code.',
-        'Learning collaborative development practices.',
-        'Working within deadlines.'
-      ],
-      impact: [
-        'Delivered production features.',
-        'Improved dashboard experiences.',
-        'Built real-world development experience.',
-        'Learned enterprise development workflows.'
-      ],
-      learnings: [
-        'Professional software development.',
-        'Product thinking.',
-        'Team collaboration.',
-        'Business workflow understanding.'
-      ],
-      side: 'right',
-      x: 240,
-      y: -80,
-      z: 1000,
-      color: '#00ffaa',
-      colorRgb: '0, 255, 170'
-    },
-    {
-      id: 3,
-      year: 'May 2023',
-      title: 'Software Engineer',
-      company: 'Darwinbox',
-      designation: 'Software Engineer',
-      story: 'Joined Darwinbox as a full-time Software Engineer and started contributing to multiple enterprise-grade HR technology products used by large organizations. Worked across different modules and gained exposure to large-scale software systems.',
-      tech: ['Angular', 'TypeScript', 'RxJS', 'NGXS', 'REST APIs', 'SCSS', 'Git'],
-      contributions: [
-        'Developed enterprise Angular applications.',
-        'Worked across multiple product modules.',
-        'Delivered customer-facing features.',
-        'Integrated backend services.',
-        'Collaborated with product managers.',
-        'Participated in architecture discussions.',
-        'Improved frontend maintainability.',
-        'Worked with production-scale applications.',
-        'Contributed to enterprise workflows.'
-      ],
-      challenges: [
-        'Understanding enterprise business logic.',
-        'Working with large codebases.',
-        'Managing production-scale features.',
-        'Learning cross-functional collaboration.',
-        'Adapting to enterprise architecture.'
-      ],
-      impact: [
-        'Delivered multiple features.',
-        'Supported enterprise customers.',
-        'Improved application functionality.',
-        'Expanded product knowledge.'
-      ],
-      learnings: [
-        'Enterprise software engineering.',
-        'Collaboration at scale.',
-        'Production ownership.',
-        'Product architecture.'
-      ],
-      side: 'left',
-      x: -240,
-      y: -80,
-      z: 1600,
-      color: '#00f0ff',
-      colorRgb: '0, 240, 255'
-    },
-    {
-      id: 4,
-      year: 'Dec 2023 – Jun 2024',
-      title: 'Time Management Revamp',
-      designation: 'Frontend Engineer',
-      project: 'Time Management Revamp',
-      story: 'Owned and delivered the frontend revamp of Darwinbox\'s largest and most business-critical Time Management module. The revamp modernized a legacy system into a scalable Angular-based architecture while supporting attendance, leave, shift, overtime, dashboard, and timesheet workflows used daily across enterprise customers.',
-      tech: ['Angular', 'TypeScript', 'RxJS', 'NGXS', 'REST APIs', 'SCSS', 'Highcharts', 'Git', 'Performance Optimization', 'State Management'],
-      contributions: [
-        'Sole frontend engineer for the revamp.',
-        'Built 100+ reusable components.',
-        'Designed scalable Angular architecture.',
-        'Created reusable state management patterns.',
-        'Established standards adopted by future revamps.',
-        'Collaborated with 13+ backend engineers, QA, PMs and UX.',
-        'Implemented attendance workflows.',
-        'Implemented leave management workflows.',
-        'Implemented shift management workflows.',
-        'Implemented timesheet systems.',
-        'Built dashboard experiences.',
-        'Led frontend ownership from design to production.'
-      ],
-      challenges: [
-        'Migrating a legacy system.',
-        'Large-scale frontend architecture.',
-        'Complex enterprise workflows.',
-        'High performance requirements.',
-        'Thousands of rendered components.',
-        'Cross-team coordination.',
-        'Scalability concerns.'
-      ],
-      impact: [
-        '100+ components delivered.',
-        '5s → <1s performance improvement.',
-        'Foundation for future module revamps.',
-        'Improved maintainability.',
-        'Increased developer productivity.',
-        'Reusable architecture adoption.',
-        'Enterprise-scale reliability.',
-        'Better user experience.',
-        'Faster feature development.'
-      ],
-      learnings: [
-        'Technical ownership.',
-        'Architecture design.',
-        'Enterprise systems.',
-        'Performance engineering.',
-        'Leadership through execution.'
-      ],
-      side: 'right',
-      x: 300,
-      y: -85,
-      z: 2400,
-      color: '#ef4444',
-      colorRgb: '239, 68, 68'
-    },
-    {
-      id: 5,
-      year: '2024',
-      title: 'Best Employee Award',
-      story: 'Recognized for exceptional contribution, ownership, and execution during the Time Management Revamp. Celebrated inside Darwinbox engineering for architectural execution and product impact.',
-      tech: [],
-      contributions: [
-        'Delivered critical revamp milestones.',
-        'Maintained high quality standards.',
-        'Solved complex technical challenges.',
-        'Demonstrated ownership.',
-        'Collaborated effectively across teams.',
-        'Contributed beyond assigned responsibilities.',
-        'Supported successful project delivery.'
-      ],
-      challenges: [],
-      impact: [
-        'Best Employee Award.',
-        'Organizational recognition.',
-        'Engineering excellence.',
-        'Strong team contribution.'
-      ],
-      learnings: [],
-      side: 'left',
-      x: -240,
-      y: -80,
-      z: 3200,
-      color: '#ffcc00',
-      colorRgb: '255, 204, 0'
-    },
-    {
-      id: 6,
-      year: 'April 2025',
-      title: 'Promotion to SDE-II',
-      story: 'Promoted to Software Development Engineer II based on technical contributions, ownership, consistency, and impact across modular frontend projects.',
-      tech: [],
-      contributions: [
-        'Consistent delivery.',
-        'Technical ownership.',
-        'Cross-team collaboration.',
-        'Feature leadership.',
-        'Architecture contributions.',
-        'Product impact.',
-        'Engineering excellence.'
-      ],
-      challenges: [],
-      impact: [
-        'SDE-II Promotion.',
-        'Increased responsibilities.',
-        'Greater technical ownership.',
-        'Leadership opportunities.'
-      ],
-      learnings: [],
-      side: 'right',
-      x: 240,
-      y: -80,
-      z: 3800,
-      color: '#ddb7ff',
-      colorRgb: '221, 183, 255'
-    },
-    {
-      id: 7,
-      year: '2025',
-      title: 'Scheduling Point',
-      designation: 'SDE-II',
-      project: 'Scheduling Point',
-      story: 'Led frontend development for Scheduling Point and contributed to workforce scheduling, planning systems, and enterprise scheduling workflows.',
-      tech: ['Angular', 'TypeScript', 'RxJS', 'NGXS', 'REST APIs', 'System Design'],
-      contributions: [
-        'Led frontend implementation.',
-        'Built scheduling workflows.',
-        'Implemented planning systems.',
-        'Developed reusable interfaces.',
-        'Collaborated with stakeholders.',
-        'Improved workflow efficiency.',
-        'Delivered enterprise functionality.'
-      ],
-      challenges: [],
-      impact: [
-        'Enterprise scheduling platform.',
-        'Workforce planning support.',
-        'Improved operational workflows.',
-        'Scalable scheduling systems.'
-      ],
-      learnings: [],
-      side: 'left',
-      x: -240,
-      y: -80,
-      z: 4400,
-      color: '#4a60ff',
-      colorRgb: '74, 96, 255'
-    },
-    {
-      id: 8,
-      year: '2026',
-      title: 'CareerOps',
-      designation: 'Creator & Engineer',
-      project: 'CareerOps',
-      story: 'Built CareerOps, an AI-powered Career Operating System that helps job seekers through resume optimization, job discovery, interview preparation, career guidance, and application tracking. Designed and implemented a multi-agent architecture powered by AI workflows and orchestration systems.',
-      tech: ['Angular', 'Node.js', 'MongoDB Atlas', 'LangGraph', 'AI Agents', 'Prompt Engineering', 'Agentic Workflows', 'LLM Integration', 'AI Assisted Development'],
-      contributions: [
-        'Built CareerOps from scratch.',
-        'Designed AI-powered workflows.',
-        'Developed multi-agent architecture.',
-        'Built resume intelligence systems.',
-        'Built job matching systems.',
-        'Developed interview preparation workflows.',
-        'Implemented career guidance systems.',
-        'Built application tracking functionality.',
-        'Designed LangGraph orchestration.',
-        'Integrated multiple job sources.',
-        'Created AI-powered user experiences.'
-      ],
-      challenges: [],
-      impact: [
-        '10+ AI Agents.',
-        'AI Career Operating System.',
-        'Resume Intelligence.',
-        'Job Matching.',
-        'Interview Preparation.',
-        'Career Guidance.',
-        'Application Tracking.',
-        'Built in 7 Days.',
-        'End-to-end AI platform.'
-      ],
-      learnings: [
-        'AI Product Development.',
-        'Agentic Systems.',
-        'Workflow Orchestration.',
-        'Rapid Product Development.',
-        'AI Engineering.'
-      ],
-      side: 'right',
-      x: 300,
-      y: -85,
-      z: 5200,
-      color: '#ffaa00',
-      colorRgb: '255, 170, 0'
-    }
-  ];
+  public readonly milestonesList = MILESTONES_LIST;
 
   // Camera flight keyframes tracking camera depth, panning offsets, and active focus points (spaced out on 5000px timeline)
-  private readonly cameraKeyframes: CameraKeyframe[] = [
-    { p: 0.00, z: 0, x: 0, y: 0, activeIdx: -1, focusWeight: 0 },
-    { p: 0.04, z: 320, x: 0, y: 0, activeIdx: 0, focusWeight: 0 },
-    { p: 0.07, z: 400, x: -180, y: -15, activeIdx: 0, focusWeight: 1 },
-    { p: 0.10, z: 400, x: -180, y: -15, activeIdx: 0, focusWeight: 1 },
-    { p: 0.14, z: 480, x: 0, y: 0, activeIdx: 0, focusWeight: 0 },
-    
-    { p: 0.17, z: 920, x: 0, y: 0, activeIdx: 1, focusWeight: 0 },
-    { p: 0.20, z: 1000, x: 180, y: -15, activeIdx: 1, focusWeight: 1 },
-    { p: 0.23, z: 1000, x: 180, y: -15, activeIdx: 1, focusWeight: 1 },
-    { p: 0.27, z: 1080, x: 0, y: 0, activeIdx: 1, focusWeight: 0 },
-    
-    { p: 0.30, z: 1520, x: 0, y: 0, activeIdx: 2, focusWeight: 0 },
-    { p: 0.33, z: 1600, x: -180, y: -15, activeIdx: 2, focusWeight: 1 },
-    { p: 0.36, z: 1600, x: -180, y: -15, activeIdx: 2, focusWeight: 1 },
-    { p: 0.40, z: 1680, x: 0, y: 0, activeIdx: 2, focusWeight: 0 },
-    
-    // Milestone 4: Time Revamp (Hero - longer pause/focus space)
-    { p: 0.43, z: 2300, x: 0, y: 0, activeIdx: 3, focusWeight: 0 },
-    { p: 0.47, z: 2400, x: 210, y: -15, activeIdx: 3, focusWeight: 1 },
-    { p: 0.53, z: 2400, x: 210, y: -15, activeIdx: 3, focusWeight: 1 },
-    { p: 0.57, z: 2500, x: 0, y: 0, activeIdx: 3, focusWeight: 0 },
-    
-    { p: 0.60, z: 3120, x: 0, y: 0, activeIdx: 4, focusWeight: 0 },
-    { p: 0.63, z: 3200, x: -180, y: -15, activeIdx: 4, focusWeight: 1 },
-    { p: 0.66, z: 3200, x: -180, y: -15, activeIdx: 4, focusWeight: 1 },
-    { p: 0.70, z: 3280, x: 0, y: 0, activeIdx: 4, focusWeight: 0 },
-    
-    { p: 0.71, z: 3720, x: 0, y: 0, activeIdx: 5, focusWeight: 0 },
-    { p: 0.74, z: 3800, x: 180, y: -15, activeIdx: 5, focusWeight: 1 },
-    { p: 0.77, z: 3800, x: 180, y: -15, activeIdx: 5, focusWeight: 1 },
-    { p: 0.80, z: 3880, x: 0, y: 0, activeIdx: 5, focusWeight: 0 },
-    
-    { p: 0.83, z: 4320, x: 0, y: 0, activeIdx: 6, focusWeight: 0 },
-    { p: 0.86, z: 4400, x: -180, y: -15, activeIdx: 6, focusWeight: 1 },
-    { p: 0.89, z: 4400, x: -180, y: -15, activeIdx: 6, focusWeight: 1 },
-    { p: 0.91, z: 4480, x: 0, y: 0, activeIdx: 6, focusWeight: 0 },
-    
-    // Milestone 8: CareerOps AI (Hero - final culmination before exit blur)
-    { p: 0.92, z: 5100, x: 0, y: 0, activeIdx: 7, focusWeight: 0 },
-    { p: 0.93, z: 5200, x: 210, y: -15, activeIdx: 7, focusWeight: 1 },
-    { p: 0.95, z: 5200, x: 210, y: -15, activeIdx: 7, focusWeight: 1 },
-    { p: 0.97, z: 5350, x: 0, y: 0, activeIdx: 7, focusWeight: 0 },
-    { p: 1.00, z: 5800, x: 0, y: 0, activeIdx: -1, focusWeight: 0 }
-  ];
+  private readonly cameraKeyframes = CAMERA_KEYFRAMES;
 
   // Interpolated Camera State computed from progress
   private readonly cameraState = computed(() => {
@@ -722,6 +297,14 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       }
     });
 
+    // Keep cursor color synced to the active milestone color
+    effect(() => {
+      const info = this.activeMilestoneInfo();
+      if (this.isSceneActive && info) {
+        this.cursorService.setSceneColor(info.milestone.color);
+      }
+    });
+
     // Handle scroll overflow checks and auto scroll-into-view when milestone/phase updates
     effect(() => {
       const info = this.activeMilestoneInfo();
@@ -770,12 +353,11 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
               if (container && el) {
                 const header = container.querySelector('.phase-status-indicator');
                 const headerHeight = header ? (header as HTMLElement).offsetHeight : 70;
-                // Since container has position: relative, el.offsetTop is relative to container
                 const scrollOffset = el.offsetTop - headerHeight;
                 container.scrollTo({ top: Math.max(0, scrollOffset), behavior: 'smooth' });
               }
             }
-          }, 850); // Shorter timeout for immediate responsive scrolling as DOM settles
+          }, 850);
         } else if (currentPhase < this.lastPhase) {
           // User scrolled backward
           this.lastPhase = currentPhase;
@@ -812,6 +394,9 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     console.log('[Scene: Experience Timeline] Entered');
     this.isSceneActive = true;
     this.jarvisService.showMessage('Accessing Engineering Memory Archives', 4000);
+    // Apply current milestone color on scene enter
+    const info = this.activeMilestoneInfo();
+    this.cursorService.setSceneColor(info ? info.milestone.color : '#e2e1ee');
 
     if (this.animationService.getIsBrowser() && !this.animationFrameId) {
       this.startAnimationLoop();
@@ -821,6 +406,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
   onLeave(): void {
     console.log('[Scene: Experience Timeline] Leaved');
     this.isSceneActive = false;
+    this.cursorService.setSceneColor(null);
   }
 
   onProgress(progress: number): void {
@@ -928,7 +514,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
 
       const scale = this.focalLength / denom;
       
-      // Parallax shifts on mouse movement
       const px = relX + this.mouseX * 30;
       const py = relY + this.mouseY * 30;
 
@@ -961,7 +546,7 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     });
     this.ctx.restore();
 
-    // 2. Draw Corridor wire frames (Perspective receding rings)
+    // 2. Draw Corridor wire frames
     this.ctx.save();
     this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.035)';
     this.ctx.lineWidth = 0.8;
@@ -973,7 +558,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     for (let r = 0; r < ringCount; r++) {
       const rZ = startRingZ + r * ringInterval;
       
-      // Project corridor rectangle vertices
       const w = 550;
       const h = 320;
       const tl = project3D(-w, -h, rZ);
@@ -989,7 +573,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         this.ctx.lineTo(bl.x, bl.y);
         this.ctx.closePath();
         
-        // Faint glow on grid ring
         const fade = Math.max(0, Math.min(1.0, 1.0 - (rZ - camZ) / 2500));
         this.ctx.strokeStyle = `rgba(0, 240, 255, ${fade * 0.05})`;
         this.ctx.stroke();
@@ -1020,7 +603,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     this.ctx.save();
     this.ctx.lineWidth = 1.6;
     
-    // Form winding path coordinates
     const windingCoords: { x: number; y: number; z: number; color: string }[] = [
       { x: 0, y: 0, z: 0, color: '#06b6d4' }
     ];
@@ -1029,7 +611,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     });
     windingCoords.push({ x: 0, y: 120, z: 5800, color: '#14b8a6' });
 
-    // Draw lines connecting segments in 3D
     for (let k = 0; k < windingCoords.length - 1; k++) {
       const pt1 = project3D(windingCoords[k].x, windingCoords[k].y, windingCoords[k].z);
       const pt2 = project3D(windingCoords[k + 1].x, windingCoords[k + 1].y, windingCoords[k + 1].z);
@@ -1065,7 +646,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
       const mStart = this.milestonesList[p.startIdx];
       const mEnd = this.milestonesList[p.endIdx];
 
-      // Spiral interpolation path formula
       const interpZ = mStart.z + (mEnd.z - mStart.z) * p.t;
       const spiralRadius = 50 * (1.0 - Math.sin(p.t * Math.PI)); // pinch in the middle
       const angle = p.angleOffset + p.t * Math.PI * 5;
@@ -1085,9 +665,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
     this.ctx.restore();
   }
 
-  /**
-   * Renders the custom visual graphics in 3D around the milestones on the canvas
-   */
   private drawMilestoneGraphics(
     m: Milestone, 
     idx: number, 
@@ -1104,7 +681,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
 
     switch (m.id) {
       case 1: {
-        // --- Milestone 1: Blueprint knowledge assembly ---
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const r = 40 * ptCenter.scale;
@@ -1113,7 +689,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.arc(ptCenter.x, ptCenter.y, r, 0, Math.PI * 2);
           this.ctx!.stroke();
 
-          // Draw blueprint crosshairs
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - r * 1.5, ptCenter.y);
@@ -1125,8 +700,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 2: {
-        // --- Milestone 2: Vendor network ecosystem ---
-        // Draw interconnected inventory circles
         const nodes = [
           { dx: -35, dy: 90 }, { dx: 35, dy: 90 },
           { dx: 0, dy: 140 }, { dx: -45, dy: 140 }, { dx: 45, dy: 140 }
@@ -1142,7 +715,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.fill();
           this.ctx!.stroke();
 
-          // Connect adjacent nodes
           if (nodeI > 0) {
             const prev = projNodes[nodeI - 1];
             this.ctx!.beginPath();
@@ -1154,7 +726,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 3: {
-        // --- Milestone 3: Enterprise HR networks ---
         const ptCenter = project3D(m.x, m.y + 110, m.z);
         if (ptCenter) {
           const w = 70 * ptCenter.scale;
@@ -1164,7 +735,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.05})`;
           this.ctx!.fillRect(ptCenter.x - w / 2, ptCenter.y - h / 2, w, h);
 
-          // Flow lines on sides
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - w, ptCenter.y);
@@ -1174,8 +744,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 4: {
-        // --- Milestone 4: Massive system module revamp (Attendance, Leaves, Shifts...) ---
-        // Draw large reconfiguring systems ring
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const mainRad = 65 * ptCenter.scale;
@@ -1186,7 +754,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.lineWidth = 1.5;
           this.ctx!.stroke();
 
-          // Draw orbital module nodes
           const modCount = 7;
           this.ctx!.lineWidth = 1.0;
           for (let i = 0; i < modCount; i++) {
@@ -1201,7 +768,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
             this.ctx!.fill();
             this.ctx!.stroke();
 
-            // lines connecting nodes back to core
             this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.12})`;
             this.ctx!.beginPath();
             this.ctx!.moveTo(ptCenter.x, ptCenter.y);
@@ -1212,7 +778,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 5: {
-        // --- Milestone 5: Crystal trophy & award chamber ---
         const ptBase = project3D(m.x, m.y + 150, m.z);
         const ptTop = project3D(m.x, m.y + 80, m.z);
         if (ptBase && ptTop) {
@@ -1220,7 +785,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.5})`;
           this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.08})`;
 
-          // Draw triangular crystal shape
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptBase.x - w, ptBase.y);
           this.ctx!.lineTo(ptBase.x + w, ptBase.y);
@@ -1229,7 +793,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.fill();
           this.ctx!.stroke();
 
-          // Upward light rays
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.25})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptTop.x, ptTop.y);
@@ -1239,11 +802,9 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 6: {
-        // --- Milestone 6: Futuristic gateway opening ---
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const relativeZ = m.z - this.cameraZ();
-          // Open door dynamically when camera gets close (depth < 400)
           const openFactor = Math.max(0, Math.min(1.0, (400 - relativeZ) / 300));
           const w = 45 * ptCenter.scale;
           const h = 55 * ptCenter.scale;
@@ -1252,18 +813,15 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.4})`;
           this.ctx!.fillStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.05})`;
 
-          // Left door panel
           this.ctx!.strokeRect(ptCenter.x - w - slide, ptCenter.y - h / 2, w, h);
           this.ctx!.fillRect(ptCenter.x - w - slide, ptCenter.y - h / 2, w, h);
 
-          // Right door panel
           this.ctx!.strokeRect(ptCenter.x + slide, ptCenter.y - h / 2, w, h);
           this.ctx!.fillRect(ptCenter.x + slide, ptCenter.y - h / 2, w, h);
         }
         break;
       }
       case 7: {
-        // --- Milestone 7: Planning grids / schedules ---
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const w = 70 * ptCenter.scale;
@@ -1271,7 +829,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.3})`;
           this.ctx!.strokeRect(ptCenter.x - w / 2, ptCenter.y - h / 2, w, h);
 
-          // Grid rows
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.15})`;
           this.ctx!.beginPath();
           this.ctx!.moveTo(ptCenter.x - w / 2, ptCenter.y);
@@ -1285,13 +842,10 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
         break;
       }
       case 8: {
-        // --- Milestone 8: AI Agent Network (Golden/Teal brain) ---
-        // Renders neural network lines
         const ptCenter = project3D(m.x, m.y + 120, m.z);
         if (ptCenter) {
           const rCore = 12 * ptCenter.scale;
           
-          // Core brain node
           this.ctx!.beginPath();
           this.ctx!.arc(ptCenter.x, ptCenter.y, rCore, 0, Math.PI * 2);
           this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.9})`;
@@ -1299,7 +853,6 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
           this.ctx!.fill();
           this.ctx!.stroke();
 
-          // Surrounding agent nodes
           const agentCount = 6;
           const radius = 55 * ptCenter.scale;
           for (let i = 0; i < agentCount; i++) {
@@ -1307,18 +860,16 @@ export class ExperienceDatabase implements OnInit, AfterViewInit, OnDestroy, Sce
             const ax = ptCenter.x + Math.cos(angle) * radius;
             const ay = ptCenter.y + Math.sin(angle) * radius;
 
-            // Connect lines
             this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.25})`;
             this.ctx!.beginPath();
             this.ctx!.moveTo(ptCenter.x, ptCenter.y);
             this.ctx!.lineTo(ax, ay);
             this.ctx!.stroke();
 
-            // Draw agent dot
             this.ctx!.beginPath();
             this.ctx!.arc(ax, ay, 4 * ptCenter.scale, 0, Math.PI * 2);
             this.ctx!.strokeStyle = `rgba(${m.colorRgb}, ${focusAlpha * 0.75})`;
-            this.ctx!.fillStyle = `rgba(192, 193, 255, ${focusAlpha * 0.25})`; // Indigo
+            this.ctx!.fillStyle = `rgba(192, 193, 255, ${focusAlpha * 0.25})`;
             this.ctx!.fill();
             this.ctx!.stroke();
           }

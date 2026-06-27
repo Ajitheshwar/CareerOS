@@ -1,6 +1,5 @@
 import { Injectable, signal, OnDestroy } from '@angular/core';
-
-export type CursorState = 'DEFAULT' | 'HOVER' | 'CLICK' | 'DRAG' | 'LOADING' | 'PRECISION' | 'LINK' | 'DISABLED';
+import { CursorState } from '../../shared/interfaces/cursor.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +12,9 @@ export class CursorService implements OnDestroy {
   public readonly mouseY = signal<number>(0);
   public readonly snapCoords = signal<{ x: number; y: number } | null>(null);
   public readonly isScrolling = signal<boolean>(false);
+
+  // Scene-level base color – driven by the active scene (Skills / Experience / AI Core)
+  private sceneBaseColor = '#00E5FF';
 
   private scrollTimeoutId: any = null;
   private isMouseDown = false;
@@ -104,10 +106,10 @@ export class CursorService implements OnDestroy {
     // Find closest interactive component
     const interactive = target.closest('a, button, select, input, textarea, [role="button"], .cursor-pointer, .system-node, .strength-node-pill, .contact-node');
     if (!interactive) {
-      // Revert to default unless currently clicking/dragging
+      // Revert to scene base color unless currently clicking/dragging
       if (!this.isMouseDown) {
         this.state.set('DEFAULT');
-        this.themeColor.set('#00E5FF');
+        this.themeColor.set(this.sceneBaseColor);
         this.snapCoords.set(null);
       }
       return;
@@ -133,7 +135,8 @@ export class CursorService implements OnDestroy {
     ) {
       if (!this.isMouseDown) {
         this.state.set('LINK');
-        this.themeColor.set('#fb923c'); // Amber/Orange
+        const customTheme = window.getComputedStyle(interactive).getPropertyValue('--theme-color')?.trim();
+        this.themeColor.set(customTheme || '#fb923c');
         this.snapCoords.set(null);
       }
       return;
@@ -166,7 +169,7 @@ export class CursorService implements OnDestroy {
     if (!this.isMouseDown) {
       this.state.set('HOVER');
       const customTheme = window.getComputedStyle(interactive).getPropertyValue('--theme-color')?.trim();
-      this.themeColor.set(customTheme || '#00E5FF');
+      this.themeColor.set(customTheme || this.sceneBaseColor);
       this.snapCoords.set(null);
     }
   }
@@ -176,7 +179,19 @@ export class CursorService implements OnDestroy {
     if (interactive && !this.isMouseDown) {
       this.snapCoords.set(null);
       this.state.set('DEFAULT');
-      this.themeColor.set('#00E5FF');
+      this.themeColor.set(this.sceneBaseColor);
+    }
+  }
+
+  /**
+   * Called by scene components (Skills / Experience / AI Core) to tint the cursor
+   * to match the active scene/stage color. Pass null to reset to default cyan.
+   */
+  public setSceneColor(color: string | null): void {
+    this.sceneBaseColor = color ?? '#00E5FF';
+    // Apply immediately so the idle cursor reflects the new color right away
+    if (this.state() === 'DEFAULT') {
+      this.themeColor.set(this.sceneBaseColor);
     }
   }
 
@@ -186,7 +201,7 @@ export class CursorService implements OnDestroy {
       this.themeColor.set('#8B5CF6'); // purple loader
     } else {
       this.state.set('DEFAULT');
-      this.themeColor.set('#00E5FF');
+      this.themeColor.set(this.sceneBaseColor);
     }
   }
 

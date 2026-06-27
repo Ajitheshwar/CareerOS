@@ -1,18 +1,8 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CursorService, CursorState } from '../../../core/services/cursor.service';
+import { CursorService } from '../../../core/services/cursor.service';
 import { AnimationService } from '../../../core/services/animation.service';
-
-interface CursorParticle {
-  id: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
-  color: string;
-}
+import { CursorParticle, CursorState } from '../../interfaces/cursor.interface';
 
 @Component({
   selector: 'app-custom-cursor',

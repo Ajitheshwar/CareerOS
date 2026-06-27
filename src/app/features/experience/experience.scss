@@ -1,4 +1,3 @@
-
 .experience-scene-container {
   transform-style: preserve-3d;
   width: 100vw;
@@ -72,7 +71,7 @@
   height: 100vh;
   z-index: 10;
   box-sizing: border-box;
-  padding: 0 4%; // space for top & bottom HUD bars
+  padding: 0 4%;
   will-change: opacity, transform;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease-out;
   transform-style: preserve-3d;
@@ -383,7 +382,6 @@
     animation: core-glow-pulse 3s infinite alternate;
   }
   
-  /* Phase reveal rules */
   &:not(.core-node) {
     opacity: 0.2;
     transform: scale(0.9);
@@ -561,7 +559,6 @@
 
 /* Responsive Media Queries */
 @media (max-width: 768px) {
-  /* Turn the fixed viewport container into a natural-flow scrollable column */
   .hud-top-header {
     z-index: 11;
     padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4) 0px;
@@ -575,11 +572,9 @@
     flex: 1;
     padding: 0px 16px;
     overflow-y: auto !important;
-    /* Disable the 3D transform-style that prevents normal scroll */
     transform-style: flat !important;
   }
 
-  /* Info zone becomes full-width, natural height — no inner scroll */
   .info-zone {
     width: 100% !important;
     max-width: 100% !important;
@@ -588,14 +583,12 @@
     display: contents;
   }
 
-  /* Dissolve the clipping scroll wrapper on info zone */
   .scroll-container-wrapper {
     overflow: visible !important;
     height: auto !important;
     display: contents;
   }
 
-  /* Remove height cap and inner scroll — phases expand freely */
   .info-zone-inner {
     max-height: none !important;
     height: auto !important;
@@ -604,7 +597,6 @@
     display: contents;
   }
 
-  /* Visual system zone — full-width, natural height, shown after info */
   .visual-system-zone {
     width: 100% !important;
     height: 0;
@@ -617,7 +609,6 @@
     }
   }
 
-  /* Make the contributions card full-width, natural height — no inner scroll */
   .visual-system-card {
     width: 100% !important;
     max-width: 100% !important;
@@ -630,7 +621,6 @@
     height: auto !important;
   }
 
-  /* Remove the contributions list scroll on mobile */
   .visual-content ul,
   .visual-content .custom-scrollbar {
     max-height: none !important;
@@ -638,7 +628,6 @@
     overflow-y: visible !important;
   }
 
-  /* Phase sections expand fully — no overflow clipping */
   .phase-3-tech-challenges,
   .phase-4-impact-learnings {
     max-height: none !important;
@@ -649,7 +638,6 @@
     }
   }
 
-  /* Hide scroll indicators on mobile (no inner scroll) */
   .bottom-gradient-overlay,
   .scroll-indicator {
     display: none !important;

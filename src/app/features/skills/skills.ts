@@ -3,123 +3,33 @@ import { CommonModule } from '@angular/common';
 import { SceneEngineService } from '../../core/services/scene-engine.service';
 import { JarvisService } from '../../core/services/jarvis.service';
 import { AnimationService } from '../../core/services/animation.service';
+import { CursorService } from '../../core/services/cursor.service';
 import { SceneLifecycle } from '../../core/types/scene.types';
 import { BREAKPOINTS } from '../../core/constants/breakpoints';
-
-interface Skill {
-  id: string;
-  name: string;
-  isPrimary: boolean;
-  description: string;
-  stageIndex: number;
-  angle: number;
-  radius: number;
-  color: string;
-  colorRgb: string;
-}
-
-interface ProjectedSkillNode {
-  id: string;
-  name: string;
-  isPrimary: boolean;
-  description: string;
-  transform: string;
-  opacity: number;
-  zIndex: number;
-  color: string;
-  vectorLength: number;
-  vectorRotation: string;
-}
-
-interface CanvasParticle {
-  x: number;
-  y: number;
-  z: number;
-  speed: number;
-  size: number;
-  color: string;
-  opacity: number;
-  angle?: number;
-}
-
-interface SidebarBlock {
-  title: string;
-  borderColorClass: string;
-  textColorClass: string;
-  items: string[];
-}
+import { Skill, ProjectedSkillNode, CanvasParticle, SidebarBlock } from '../../shared/interfaces/skill.interface';
+import { SKILLS_DATA, SIDEBAR_BLOCKS } from '../../shared/constants/skills.constants';
+import { SKILLS_CAMERA } from '../../shared/constants/camera.constants';
+import { smoothstep } from '../../shared/utils/math.utils';
+import { rotatePointX, rotatePointY } from '../../shared/utils/geometry.utils';
 
 @Component({
-  selector: 'app-skills-engine',
+  selector: 'app-skills',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './skills-engine.html',
-  styleUrl: './skills-engine.scss'
+  templateUrl: './skills.html',
+  styleUrl: './skills.scss'
 })
-export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
+export class SkillsComponent implements OnInit, AfterViewInit, OnDestroy, SceneLifecycle {
   private readonly sceneEngine = inject(SceneEngineService);
   private readonly jarvisService = inject(JarvisService);
   private readonly animationService = inject(AnimationService);
+  private readonly cursorService = inject(CursorService);
   private readonly el = inject(ElementRef);
 
-  public readonly sidebarBlocks: SidebarBlock[] = [
-    {
-      title: 'FRAGMENTS_LOADED:',
-      borderColorClass: 'border-primary-container/20',
-      textColorClass: 'text-primary-container',
-      items: [
-        '// 100+ Components Built',
-        '// Enterprise Applications',
-        '// Reusable Architecture',
-        '// Performance Optimization',
-        '// Design Systems'
-      ]
-    },
-    {
-      title: 'NETWORK_PIPES:',
-      borderColorClass: 'border-accent-teal/20',
-      textColorClass: 'text-accent-teal',
-      items: [
-        '// REST Architecture',
-        '// Async Packet Streams',
-        '// Auth Token Handshakes',
-        '// Secure Cryptography'
-      ]
-    },
-    {
-      title: 'STORAGE_SECTORS:',
-      borderColorClass: 'border-secondary/20',
-      textColorClass: 'text-secondary',
-      items: [
-        '// Document Aggregations',
-        '// Optimized Query Latency',
-        '// Real-time Cloud Sync',
-        '// Normalized Data Structures'
-      ]
-    },
-    {
-      title: 'COGNITIVE_NET:',
-      borderColorClass: 'border-accent-orange/20',
-      textColorClass: 'text-accent-orange',
-      items: [
-        '// Autonomous Agents',
-        '// Prompt Graph Loops',
-        '// Memory Abstractions',
-        '// LLM Assisted Workflows'
-      ]
-    },
-    {
-      title: 'FOUNDRY_CORE:',
-      borderColorClass: 'border-primary/20',
-      textColorClass: 'text-primary',
-      items: [
-        '// Scalable Architectures',
-        '// Clean Code Standards',
-        '// Team Agile Sprints',
-        '// Domain Driven Design'
-      ]
-    }
-  ];
+  // Stage accent colors (mirrors the reactor core colors in renderFrame)
+  private readonly STAGE_COLORS = ['#00f0ff', '#00ffaa', '#c0c1ff', '#ffaa00', '#e2e1ee'] as const;
+
+  public readonly sidebarBlocks = SIDEBAR_BLOCKS;
 
   // Active state and scroll progress normalized within Scene 3 limits (0.0 to 1.0)
   public readonly active = input<boolean>(false);
@@ -185,7 +95,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
   private renderTime = 0;
 
   // 3D Camera Projection variables
-  private readonly focalLength = 350;
+  private readonly focalLength = SKILLS_CAMERA.FOCAL_LENGTH;
   private mouseX = 0;
   private mouseY = 0;
   private targetMouseX = 0;
@@ -193,60 +103,10 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
   // Background environment ambient particles
   private ambientParticles: CanvasParticle[] = [];
-  private readonly ambientCount = 80;
+  private readonly ambientCount = SKILLS_CAMERA.AMBIENT_COUNT;
 
   // Skills static configuration data
-  private readonly skillsData: Skill[] = [
-    // Stage 0: Frontend (7 skills) - Electric Cyan (#00f0ff)
-    { id: 'angular', name: 'Angular', isPrimary: true, description: 'Builds scalable enterprise frontends with modular architecture and reusable components.', stageIndex: 0, angle: 0, radius: 250, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'typescript', name: 'TypeScript', isPrimary: true, description: 'Develops type-safe applications with improved maintainability and developer productivity.', stageIndex: 0, angle: (2 * Math.PI) / 7, radius: 280, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'rxjs', name: 'RxJS', isPrimary: true, description: 'Implements reactive data flows and complex asynchronous workflows.', stageIndex: 0, angle: (4 * Math.PI) / 7, radius: 280, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'javascript', name: 'JavaScript', isPrimary: false, description: 'Strong understanding of modern ES6+ patterns and browser runtime behavior.', stageIndex: 0, angle: (6 * Math.PI) / 7, radius: 420, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'ngxs', name: 'NGXS', isPrimary: false, description: 'Manages scalable application state using predictable reactive patterns.', stageIndex: 0, angle: (8 * Math.PI) / 7, radius: 420, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'html5', name: 'HTML5', isPrimary: false, description: 'Creates semantic, accessible, and standards-compliant web interfaces.', stageIndex: 0, angle: (10 * Math.PI) / 7, radius: 440, color: '#00f0ff', colorRgb: '0, 240, 255' },
-    { id: 'css3', name: 'CSS3', isPrimary: false, description: 'Builds responsive, animated, and visually polished user experiences.', stageIndex: 0, angle: (12 * Math.PI) / 7, radius: 440, color: '#00f0ff', colorRgb: '0, 240, 255' },
-
-    // Stage 1: Backend (7 skills) - Neon Mint-Teal (#00ffaa)
-    { id: 'nodejs', name: 'Node.js', isPrimary: true, description: 'Develops high-performance backend services and APIs using JavaScript.', stageIndex: 1, angle: 0, radius: 250, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'express', name: 'Express', isPrimary: true, description: 'Creates lightweight and scalable RESTful application backends.', stageIndex: 1, angle: (2 * Math.PI) / 7, radius: 280, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'restapis', name: 'REST APIs', isPrimary: true, description: 'Designs and integrates secure and maintainable API contracts.', stageIndex: 1, angle: (4 * Math.PI) / 7, radius: 280, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'apidesign', name: 'API Design', isPrimary: false, description: 'Structures scalable service interfaces for long-term maintainability.', stageIndex: 1, angle: (6 * Math.PI) / 7, radius: 420, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'auth', name: 'Authentication', isPrimary: false, description: 'Implements secure user access and authorization workflows.', stageIndex: 1, angle: (8 * Math.PI) / 7, radius: 420, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'serviceint', name: 'Service Integration', isPrimary: false, description: 'Coordinates data communication between external software and services.', stageIndex: 1, angle: (10 * Math.PI) / 7, radius: 440, color: '#00ffaa', colorRgb: '0, 255, 170' },
-    { id: 'backcomm', name: 'Backend Comm.', isPrimary: false, description: 'Manages data transfer protocols and socket connections.', stageIndex: 1, angle: (12 * Math.PI) / 7, radius: 440, color: '#00ffaa', colorRgb: '0, 255, 170' },
-
-    // Stage 2: Data (8 skills) - Indigo Secondary (#c0c1ff)
-    { id: 'mongodb', name: 'MongoDB', isPrimary: true, description: 'Designs flexible document databases for modern applications.', stageIndex: 2, angle: 0, radius: 260, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'mysql', name: 'MySQL', isPrimary: true, description: 'Works with relational data models and optimized query design.', stageIndex: 2, angle: Math.PI / 4, radius: 260, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'firebase', name: 'Firebase', isPrimary: true, description: 'Builds real-time cloud-connected application features.', stageIndex: 2, angle: Math.PI / 2, radius: 280, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'highcharts', name: 'Highcharts', isPrimary: true, description: 'Creates interactive dashboards and business intelligence visualizations.', stageIndex: 2, angle: 3 * Math.PI / 4, radius: 280, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'datamodeling', name: 'Data Modeling', isPrimary: false, description: 'Designs efficient structures for scalable data storage and retrieval.', stageIndex: 2, angle: Math.PI, radius: 420, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'queryopt', name: 'Query Optimization', isPrimary: false, description: 'Improves application performance through efficient database operations.', stageIndex: 2, angle: 5 * Math.PI / 4, radius: 420, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'analytics', name: 'Analytics', isPrimary: false, description: 'Tracks, aggregates, and visualizes application performance metrics.', stageIndex: 2, angle: 6 * Math.PI / 4, radius: 440, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-    { id: 'dashboards', name: 'Dashboards', isPrimary: false, description: 'Builds interactive visualizations and controls for complex data.', stageIndex: 2, angle: 7 * Math.PI / 4, radius: 440, color: '#c0c1ff', colorRgb: '192, 193, 255' },
-
-    // Stage 3: AI (9 skills) - Neon Orange (#ffaa00)
-    { id: 'cursorai', name: 'Cursor AI', isPrimary: true, description: 'Accelerates software delivery through AI-assisted engineering workflows.', stageIndex: 3, angle: 0, radius: 250, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'antigravity', name: 'Antigravity IDE', isPrimary: true, description: 'Leverages intelligent development environments for rapid prototyping.', stageIndex: 3, angle: 2 * Math.PI / 9, radius: 270, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'prompteng', name: 'Prompt Engineering', isPrimary: true, description: 'Designs effective prompts for reliable AI-assisted outcomes.', stageIndex: 3, angle: 4 * Math.PI / 9, radius: 270, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'agenticflows', name: 'Agentic Workflows', isPrimary: true, description: 'Builds autonomous workflows using multi-step AI orchestration.', stageIndex: 3, angle: 6 * Math.PI / 9, radius: 270, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'langgraph', name: 'LangGraph', isPrimary: false, description: 'Orchestrates stateful agent workflows and reasoning pipelines.', stageIndex: 3, angle: 8 * Math.PI / 9, radius: 420, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'multiagent', name: 'Multi-Agent', isPrimary: false, description: 'Coordinates specialized AI agents to solve complex tasks.', stageIndex: 3, angle: 10 * Math.PI / 9, radius: 420, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'aiassisted', name: 'AI Assisted Dev', isPrimary: false, description: 'Leverages AI code generation and refinement for rapid delivery.', stageIndex: 3, angle: 12 * Math.PI / 9, radius: 440, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'workfloworch', name: 'Workflow Orch.', isPrimary: false, description: 'Designs and coordinates multi-step automated development flows.', stageIndex: 3, angle: 14 * Math.PI / 9, radius: 440, color: '#ffaa00', colorRgb: '255, 170, 0' },
-    { id: 'careerops', name: 'CareerOps', isPrimary: false, description: 'Automates professional operations and growth tracking systems.', stageIndex: 3, angle: 16 * Math.PI / 9, radius: 440, color: '#ffaa00', colorRgb: '255, 170, 0' },
-
-    // Stage 4: Foundations (9 skills) - Soft White (#e2e1ee)
-    { id: 'dsa', name: 'DSA', isPrimary: true, description: 'Applies algorithmic thinking and data structures to solve problems efficiently.', stageIndex: 4, angle: 0, radius: 250, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'sysdesign', name: 'System Design', isPrimary: true, description: 'Designs scalable, maintainable, and resilient software architectures.', stageIndex: 4, angle: 2 * Math.PI / 9, radius: 270, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'oop', name: 'OOP', isPrimary: true, description: 'Designs maintainable systems using object-oriented principles.', stageIndex: 4, angle: 4 * Math.PI / 9, radius: 270, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'patterns', name: 'Design Patterns', isPrimary: true, description: 'Uses proven architectural patterns to solve recurring engineering problems.', stageIndex: 4, angle: 6 * Math.PI / 9, radius: 270, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'sdlc', name: 'SDLC', isPrimary: false, description: 'Applies structured software development and delivery practices.', stageIndex: 4, angle: 8 * Math.PI / 9, radius: 420, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'agile', name: 'Agile/Scrum', isPrimary: false, description: 'Delivers software iteratively within cross-functional product teams.', stageIndex: 4, angle: 10 * Math.PI / 9, radius: 420, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'scalability', name: 'Scalability', isPrimary: false, description: 'Builds systems capable of handling growth and increasing complexity.', stageIndex: 4, angle: 12 * Math.PI / 9, radius: 440, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'ownership', name: 'Technical Ownership', isPrimary: false, description: 'Drives architecture, implementation, and delivery of critical features.', stageIndex: 4, angle: 14 * Math.PI / 9, radius: 440, color: '#e2e1ee', colorRgb: '226, 225, 238' },
-    { id: 'problemsolving', name: 'Problem Solving', isPrimary: false, description: 'Transforms complex requirements into practical engineering solutions.', stageIndex: 4, angle: 16 * Math.PI / 9, radius: 440, color: '#e2e1ee', colorRgb: '226, 225, 238' }
-  ];
+  private readonly skillsData = SKILLS_DATA;
 
   // Eased container fade-in / fade-out styles
   public readonly containerStyle = computed(() => {
@@ -279,6 +139,14 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
         }, 0);
       }
     });
+
+    // Keep cursor color in sync with the active stage
+    effect(() => {
+      const color = this.STAGE_COLORS[this.activeStageIndex()];
+      if (this.isSceneActive) {
+        this.cursorService.setSceneColor(color);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -300,6 +168,8 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
     console.log('[Scene: Skills Engine] Entered');
     this.isSceneActive = true;
     this.jarvisService.showMessage('Core Skills Engine Online', 4000);
+    // Apply stage color immediately on enter
+    this.cursorService.setSceneColor(this.STAGE_COLORS[this.activeStageIndex()]);
 
     if (this.animationService.getIsBrowser() && !this.animationFrameId) {
       this.startAnimationLoop();
@@ -309,6 +179,8 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
   onLeave(): void {
     console.log('[Scene: Skills Engine] Leaved');
     this.isSceneActive = false;
+    // Reset cursor to default when leaving skills scene
+    this.cursorService.setSceneColor(null);
   }
 
   onProgress(progress: number): void {
@@ -386,10 +258,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
     // 1. Forward camera motion with plateau-based step-and-hold pacing around stage midpoints
     let cameraZ = prog * 2000 - 200;
-    const smoothstep = (x: number) => {
-      const clamped = Math.min(1.0, Math.max(0.0, x));
-      return clamped * clamped * (3 - 2 * clamped);
-    };
 
     if (localScroll < 50) {
       const t = localScroll / 50;
@@ -423,19 +291,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
     const camAngleX = this.mouseY * 0.12;
     const camAngleY = this.mouseX * 0.12;
 
-    // Helper functions for 3D rotations
-    const rotatePointY = (x: number, y: number, z: number, angle: number) => {
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
-      return { x: x * cos - z * sin, y, z: x * sin + z * cos };
-    };
-
-    const rotatePointX = (x: number, y: number, z: number, angle: number) => {
-      const cos = Math.cos(angle);
-      const sin = Math.sin(angle);
-      return { x, y: y * cos + z * sin, z: -y * sin + z * cos };
-    };
-
     // Projection matrix mapping Z relative to camera with full 3D rotation (grids, environment)
     const project3D = (x: number, y: number, z: number) => {
       let r = rotatePointY(x, y, z, camAngleY);
@@ -465,7 +320,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
       const scale = this.focalLength / denom;
       
       // Simple mouse tilt translation parallax instead of full 3D rotation matrix
-      // This ensures skills revolve strictly in X-Y and don't tilt in depth
       const px = x + this.mouseX * 35;
       const py = y + this.mouseY * 35;
 
@@ -482,7 +336,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
     
     // 2. Draw Ambient Environment Background Particles
     this.ambientParticles.forEach(p => {
-      // Move particles slowly forward (Z shifts backwards relative to camera)
+      // Move particles slowly forward
       p.z -= p.speed;
       if (p.z < -200) {
         p.z = 1800; // wrap around to back
@@ -492,7 +346,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
       if (!screenPt) return;
 
       const size = p.size * screenPt.scale;
-      // Fade particles as they get extremely close or far
       let opacity = p.opacity * (1.0 - Math.abs(p.z - (cameraZ + 150)) / 900);
       opacity = Math.max(0.01, Math.min(0.8, opacity));
 
@@ -502,8 +355,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
       this.ctx!.fill();
     });
 
-    // 3. Draw Persistent reactor centerpiece (drawn at cameraZ depth to lock position in screen center)
-    // The reactor is simulated at world Z position identical to cameraZ + 50 (fixed offset in front of camera)
+    // 3. Draw Persistent reactor centerpiece
     const reactorWorldZ = cameraZ + 50;
     const reactorScreen = project2D(0, 0, reactorWorldZ);
     
@@ -601,7 +453,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
     }
 
     // 4. Render Surrounding Stage Graphics
-    // Stage systems Z position configurations
     const stagesZ = [0, 400, 800, 1200, 1600];
 
     for (let s = 0; s < 5; s++) {
@@ -660,7 +511,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
 
       } else if (s === 1) {
         // --- Stage 2: Backend Layer (API Grid pipelines) ---
-        // Draw grid pipelines at Z = 400
         const gridScale = isMobile ? 0.6 : 1.0;
         const gridLinesY = [-180, -90, 0, 90, 180].map(y => y * gridScale);
         const gridLength = 500 * gridScale;
@@ -776,7 +626,6 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
         this.ctx!.strokeStyle = `rgba(255, 170, 0, ${sWeight * 0.18})`;
         for (let i = 0; i < netNodes.length; i++) {
           for (let j = i + 1; j < netNodes.length; j++) {
-            // Only connect nearby nodes
             const distSq = Math.pow(netNodes[i].x - netNodes[j].x, 2) + Math.pow(netNodes[i].y - netNodes[j].y, 2);
             if (distSq < 130000 * aiScale * aiScale) {
               const pt1 = project3D(netNodes[i].x, netNodes[i].y, netNodes[i].z);
@@ -799,266 +648,92 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
             this.ctx!.arc(pt.x, pt.y, 4 * pt.scale, 0, Math.PI * 2);
             this.ctx!.fillStyle = `rgba(255, 170, 0, ${sWeight * 0.7})`;
             this.ctx!.fill();
-            this.ctx!.beginPath();
-            this.ctx!.arc(pt.x, pt.y, 8 * pt.scale, 0, Math.PI * 2);
-            this.ctx!.fillStyle = `rgba(255, 170, 0, ${sWeight * 0.18})`;
-            this.ctx!.fill();
           }
         });
 
-      } else if (s === 4) {
-        // --- Stage 5: Foundations (Solid geometric bottom grids) ---
-        const floorY = isMobile ? 140 : 220;
-        const gridRange = 600 * (isMobile ? 0.6 : 1.0);
-        const gridInterval = 60 * (isMobile ? 0.6 : 1.0);
-        const pillarScale = isMobile ? 0.6 : 1.0;
+      } else {
+        // --- Stage 5: System Foundations (Symmetrical blueprint framework) ---
+        const fScale = isMobile ? 0.6 : 1.0;
+        const boxRadius = 240 * fScale;
+        
+        // Large background diagnostic circle
+        const cPt = project3D(0, 0, stageZ);
+        if (cPt) {
+          this.ctx!.beginPath();
+          this.ctx!.arc(cPt.x, cPt.y, boxRadius * cPt.scale, 0, Math.PI * 2);
+          this.ctx!.stroke();
 
-        this.ctx!.strokeStyle = `rgba(226, 225, 238, ${sWeight * 0.22})`;
+          // Diagnostic crosshairs
+          const drawLine = (x1: number, y1: number, x2: number, y2: number) => {
+            const pt1 = project3D(x1, y1, stageZ);
+            const pt2 = project3D(x2, y2, stageZ);
+            if (pt1 && pt2) {
+              this.ctx!.beginPath();
+              this.ctx!.moveTo(pt1.x, pt1.y);
+              this.ctx!.lineTo(pt2.x, pt2.y);
+              this.ctx!.stroke();
+            }
+          };
 
-        // Longitudinal lines
-        for (let gx = -gridRange; gx <= gridRange; gx += gridInterval) {
-          const ptNear = project3D(gx, floorY, stageZ - 200);
-          const ptFar = project3D(gx, floorY, stageZ + 400);
-          if (ptNear && ptFar) {
-            this.ctx!.beginPath();
-            this.ctx!.moveTo(ptNear.x, ptNear.y);
-            this.ctx!.lineTo(ptFar.x, ptFar.y);
-            this.ctx!.stroke();
-          }
+          drawLine(-boxRadius, 0, boxRadius, 0);
+          drawLine(0, -boxRadius, 0, boxRadius);
         }
-
-        // Latitudinal lines
-        for (let gz = stageZ - 200; gz <= stageZ + 400; gz += gridInterval) {
-          const ptLeft = project3D(-gridRange, floorY, gz);
-          const ptRight = project3D(gridRange, floorY, gz);
-          if (ptLeft && ptRight) {
-            this.ctx!.beginPath();
-            this.ctx!.moveTo(ptLeft.x, ptLeft.y);
-            this.ctx!.lineTo(ptRight.x, ptRight.y);
-            this.ctx!.stroke();
-          }
-        }
-
-        // Draw pillar cuboid outlines
-        const pillars = [
-          { x: -280 * pillarScale, y: floorY, size: 50 * pillarScale, height: 120 * pillarScale },
-          { x: 280 * pillarScale, y: floorY, size: 50 * pillarScale, height: 120 * pillarScale }
-        ];
-
-        pillars.forEach(pil => {
-          const ptBase = project3D(pil.x, pil.y, stageZ + 100);
-          const ptTop = project3D(pil.x, pil.y - pil.height, stageZ + 100);
-
-          if (ptBase && ptTop) {
-            const w = pil.size * ptBase.scale;
-            this.ctx!.strokeStyle = `rgba(59, 73, 75, ${sWeight * 0.4})`;
-            this.ctx!.strokeRect(ptTop.x - w / 2, ptTop.y, w, ptBase.y - ptTop.y);
-            this.ctx!.fillStyle = `rgba(226, 225, 238, ${sWeight * 0.05})`;
-            this.ctx!.fillRect(ptTop.x - w / 2, ptTop.y, w, ptBase.y - ptTop.y);
-          }
-        });
       }
-
       this.ctx!.restore();
     }
 
-    // 5. Update and project HTML Skill nodes
-    const projectedList: ProjectedSkillNode[] = [];
+    // 5. Project HTML Active Stage Skills Nodes
+    const activeZ = stagesZ[activeIdx];
+    const projectedNodesList: ProjectedSkillNode[] = [];
 
-    this.skillsData.forEach(sk => {
-      // Determine if skills' stage index is close to active stage for rendering
-      let stageOffset = sk.stageIndex - activeIdx;
-      
-      // Determine local progress t of the skill's stage:
-      const startP = sk.stageIndex * 200;
-      const endP = (sk.stageIndex + 1) * 200;
-      let t = 0;
+    // Filter skills matching the current depth stage
+    const currentSkills = this.skillsData.filter(s => s.stageIndex === activeIdx);
 
-      if (localScroll >= startP && localScroll <= endP) {
-        t = (localScroll - startP) / 200; // local progress from 0.0 to 1.0
-      } else if (localScroll < startP) {
-        t = 0; // future stage
-      } else {
-        t = 1.0; // past stage
-      }
+    currentSkills.forEach(skill => {
+      // Revolve skill nodes in the 2D plane (X & Y) to keep them legible
+      // 0.70 multiplier keeps nodes close to the reactor core (matches original behaviour)
+      const spinAngle = this.renderTime * 0.0015 + skill.angle;
+      const orbitRadius = skill.radius * 0.70;
+      const sx = orbitRadius * Math.cos(spinAngle) * (isMobile ? 0.55 : 1.0);
+      const sy = orbitRadius * Math.sin(spinAngle) * (isMobile ? 0.55 : 1.0);
 
-      // Hide nodes that are far in the future or past
-      if (Math.abs(stageOffset) > 1) return;
-
-      // Stage opacity bounds
-      let opacityFactor = 0;
-      if (localScroll >= startP - 40 && localScroll <= endP + 40) {
-        if (localScroll < startP) {
-          opacityFactor = (localScroll - (startP - 40)) / 40;
-        } else if (localScroll > endP) {
-          opacityFactor = ((endP + 40) - localScroll) / 40;
-        } else {
-          opacityFactor = 1.0;
-        }
-      }
-
-      if (opacityFactor <= 0.01) return;
-
-      // Handle Assembly / Disassembly scaling and positioning offset:
-      let assembleMultiplier = 1.0;
-      let radiusMultiplier = 1.0;
-      let isDisassembling = false;
-      let disFactor = 0;
-
-      if (t < 0.25) {
-        // Assembly phase
-        assembleMultiplier = t / 0.25;
-        radiusMultiplier = t / 0.25;
-      } else if (t > 0.75) {
-        // Disassembly phase
-        assembleMultiplier = (1.0 - t) / 0.25;
-        radiusMultiplier = 1.0; // Keep full radius on disassembly/exit to fade out in place
-        isDisassembling = true;
-        disFactor = (t - 0.75) / 0.25;
-      }
-
-      // Base radius of the orbit, scaled back to center based on assembly factor
-      let baseRadiusX = sk.radius * 0.70 * radiusMultiplier;
-      let baseRadiusY = sk.radius * 0.70 * radiusMultiplier;
-
-      if (isMobile) {
-        // Constrain orbit limits to fit the screen aspect ratio
-        const maxAllowedX = Math.max(100, centerX - 75);
-        const maxAllowedY = Math.max(120, centerY - 100);
-        const relativeScale = sk.radius / 450;
-        baseRadiusX = maxAllowedX * relativeScale * radiusMultiplier;
-        baseRadiusY = maxAllowedY * relativeScale * radiusMultiplier;
-      }
-
-      // Slow rotation on the orbit ring
-      const orbitSpeed = this.renderTime * 0.0015;
-      const targetAngle = sk.angle + orbitSpeed;
-
-      const sx = baseRadiusX * Math.cos(targetAngle);
-      const sy = baseRadiusY * Math.sin(targetAngle);
-      const sz = stagesZ[sk.stageIndex];
-
-      const screenPt = project2D(sx, sy, sz);
+      // Projects coordinates at target World Stage Z depth
+      const screenPt = project2D(sx, sy, activeZ);
       if (!screenPt) return;
 
+      // Scale node down slightly if mobile
+      const scale = screenPt.scale * (isMobile ? 0.75 : 1.0);
       const relativeX = screenPt.x - centerX;
       const relativeY = screenPt.y - centerY;
 
-      // Calculate HUD connection vector details
+      // Translate matrix relative to container center
+      const transform = `translate3d(${relativeX}px, ${relativeY}px, 0px) translate(-50%, -50%) scale(${scale})`;
+      const zIndex = Math.round(500 - activeZ);
+
+      // HUD connection vector calculations
       const length = Math.sqrt(relativeX * relativeX + relativeY * relativeY);
       const angle = Math.atan2(relativeY, relativeX);
       const vectorRotation = `rotate(${angle + Math.PI}rad)`;
 
-      // Project sizing and depth styles
-      let scale = screenPt.scale;
-      if (sk.isPrimary) {
-        scale *= 1.15; // Primary nodes are slightly larger
-        if (sk.id === 'angular') scale *= 1.12; // Angular is the largest node
-      }
-      
-      const transform = `translate3d(${relativeX}px, ${relativeY}px, 0px) translate(-50%, -50%) scale(${scale})`;
-      
-      // Calculate opacity relative to camera depth: clip if past camera
-      const nodeRelativeZ = sz - cameraZ;
-      let opacity = opacityFactor * assembleMultiplier;
-      if (nodeRelativeZ < -50) {
-        // Fade out node as it moves behind the camera plane
-        opacity *= Math.max(0, 1.0 - (Math.abs(nodeRelativeZ) - 50) / 100);
-      }
+      // Fade out nodes that are too far in front or behind the active camera view
+      let opacity = 1.0 - Math.abs(activeZ - cameraZ) / 380;
       opacity = Math.max(0, Math.min(1.0, opacity));
 
-      // Closer depth -> larger depth index -> higher zIndex
-      const zIndex = Math.round(500 - nodeRelativeZ);
-
-      projectedList.push({
-        id: sk.id,
-        name: sk.name,
-        isPrimary: sk.isPrimary,
-        description: sk.description,
+      projectedNodesList.push({
+        id: skill.id,
+        name: skill.name,
+        isPrimary: skill.isPrimary,
+        description: skill.description,
         transform,
         opacity,
         zIndex,
-        color: sk.color,
-        vectorLength: length - 22,
+        color: skill.color,
+        vectorLength: length - 24, // stop short of the text block slightly
         vectorRotation
       });
-
-      // 6. Draw Disassembly/Assembly particles flowing to/from the reactor core on canvas
-      if (isDisassembling && disFactor > 0.05) {
-        this.ctx!.save();
-        this.ctx!.fillStyle = `rgba(${sk.colorRgb}, ${opacity * 0.8})`;
-
-        const streamCount = 3;
-        for (let k = 0; k < streamCount; k++) {
-          // Stagger progress of stream particles
-          const pK = Math.max(0, Math.min(1, (disFactor * 1.4) - k * 0.15));
-          if (pK > 0.01 && pK < 0.99) {
-            // Spiral inwards
-            const pAngle = targetAngle + pK * Math.PI * 1.5;
-            
-            let pRadiusX = sk.radius * 0.70 * (1.0 - pK);
-            let pRadiusY = sk.radius * 0.70 * (1.0 - pK);
-            if (isMobile) {
-              const maxAllowedX = Math.max(100, centerX - 75);
-              const maxAllowedY = Math.max(120, centerY - 100);
-              const relativeScale = sk.radius / 450;
-              pRadiusX = maxAllowedX * relativeScale * (1.0 - pK);
-              pRadiusY = maxAllowedY * relativeScale * (1.0 - pK);
-            }
-            
-            const px = pRadiusX * Math.cos(pAngle);
-            const py = pRadiusY * Math.sin(pAngle);
-            const pz = sz;
-
-            const pt = project2D(px, py, pz);
-            if (pt) {
-              this.ctx!.beginPath();
-              this.ctx!.arc(pt.x, pt.y, (1.8 + (1 - pK) * 1.5) * pt.scale, 0, Math.PI * 2);
-              this.ctx!.fill();
-            }
-          }
-        }
-        this.ctx!.restore();
-      } else if (t < 0.25 && t > 0.02) {
-        // Assembly particle streams
-        this.ctx!.save();
-        this.ctx!.fillStyle = `rgba(${sk.colorRgb}, ${opacity * 0.8})`;
-
-        const streamCount = 3;
-        for (let k = 0; k < streamCount; k++) {
-          const pK = Math.max(0, Math.min(1, (t / 0.25 * 1.4) - k * 0.15));
-          if (pK > 0.01 && pK < 0.99) {
-            // Spiral outwards from core
-            const pAngle = sk.angle + (1.0 - pK) * Math.PI * 1.5;
-            
-            let pRadiusX = sk.radius * 0.70 * pK;
-            let pRadiusY = sk.radius * 0.70 * pK;
-            if (isMobile) {
-              const maxAllowedX = Math.max(100, centerX );
-              const maxAllowedY = Math.max(120, centerY);
-              const relativeScale = sk.radius / 450;
-              pRadiusX = maxAllowedX * relativeScale * pK;
-              pRadiusY = maxAllowedY * relativeScale * pK;
-            }
-            
-            const px = pRadiusX * Math.cos(pAngle);
-            const py = pRadiusY * Math.sin(pAngle);
-            const pz = sz;
-
-            const pt = project2D(px, py, pz);
-            if (pt) {
-              this.ctx!.beginPath();
-              this.ctx!.arc(pt.x, pt.y, (1.8 + pK * 1.5) * pt.scale, 0, Math.PI * 2);
-              this.ctx!.fill();
-            }
-          }
-        }
-        this.ctx!.restore();
-      }
     });
 
-    // Update the signal for template rendering
-    this.projectedSkills.set(projectedList);
+    this.projectedSkills.set(projectedNodesList);
   }
 
   private resizeCanvas(): void {
@@ -1080,6 +755,7 @@ export class SkillsEngine implements OnInit, AfterViewInit, OnDestroy, SceneLife
   };
 
   private readonly onMouseMove = (e: MouseEvent): void => {
+    // Normalize coordinates relative to viewport center
     this.targetMouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
     this.targetMouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
   };

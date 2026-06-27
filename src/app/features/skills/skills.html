@@ -8,7 +8,7 @@
       <!-- Canvas for 3D Reactor, Particles, Streams, and Pipeline Visualizations -->
       <canvas class="skills-canvas absolute w-full h-full pointer-events-none transform-style-3d"></canvas>
 
-      <!-- Global Engine Room HUD Overlays (for immersive atmosphere) -->
+      <!-- Global Engine Room HUD Overlays -->
       <div class="hud-top-header absolute top-8 left-8 right-8 flex justify-between items-start pointer-events-auto">
         <div class="hud-left-panel flex flex-col font-mono">
           <div class="flex items-center space-x-2 text-primary-container">
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <!-- Left Diagnostic Logs Sidebar (Immersive Engine feeling) -->
+      <!-- Left Diagnostic Logs Sidebar -->
       <div class="hud-left-sidebar absolute left-8 top-32 w-48 font-mono text-[9px] text-white/40 space-y-4 block pointer-events-none">
         <div class="sidebar-block border-l border-white/10 pl-3 py-1">
           <div class="text-white/60 tracking-wider font-bold">REACTOR SYST:</div>
@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <!-- Right Achievement / Context Panel for active Stage -->
+      <!-- Right Context Panel for active Stage -->
       <div class="hud-right-sidebar absolute right-8 top-32 w-52 font-mono text-[9px] text-white/40 space-y-4 block pointer-events-auto">
         @if (sidebarBlocks[activeStageIndex()]; as block) {
           <div [class]="'sidebar-block border-r pr-3 py-1 text-right ' + block.borderColorClass">
@@ -67,7 +67,7 @@
              [style.z-index]="node.zIndex"
              [style.display]="node.opacity <= 0.01 ? 'none' : 'flex'">
           
-          <!-- Connection Vector Line (drawn from centerpiece to node coordinate) -->
+          <!-- Connection Vector Line -->
           <div class="skill-connection-line" 
                [style.width.px]="node.vectorLength" 
                [style.transform]="node.vectorRotation"
@@ -79,10 +79,8 @@
                [style.border-color]="node.color + '33'">
             
             <div class="flex items-center space-x-2">
-              <!-- <span class="skill-bracket-left">[</span> -->
               <span class="skill-dot" [style.background-color]="node.color" [style.color]="node.color"></span>
-              <span class="skill-text font-mono text-[12px] md:text-[14px] lg:text-[16px] uppercase tracking-[0.16em]">{{ node.name }}</span>
-              <!-- <span class="skill-bracket-right">]</span> -->
+              <span class="skill-text font-mono text-[16px] uppercase tracking-[0.16em]">{{ node.name }}</span>
             </div>
 
             <!-- Hover Expanded Details Section -->
